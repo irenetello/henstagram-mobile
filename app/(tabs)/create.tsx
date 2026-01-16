@@ -4,23 +4,23 @@ import { useRouter } from "expo-router";
 import React from "react";
 
 import {
-    Alert,
-    Image,
-    Keyboard,
-    KeyboardAvoidingView, Platform,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableWithoutFeedback,
-    View
+  Alert,
+  Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableWithoutFeedback,
+  View,
 } from "react-native";
 import { useCreateDraftStore } from "../store/createDraftStore";
 import { usePostsStore } from "../store/postsStore";
 
 const MAX_CHARS = 140;
-
 
 export default function CreateScreen() {
   const router = useRouter();
@@ -64,63 +64,62 @@ export default function CreateScreen() {
   };
 
   return (
-  <Screen title="Create">
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={90} // ajustable si ves que aún tapa
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView
-          contentContainerStyle={styles.container}
-          keyboardShouldPersistTaps="handled"
-        >
-          <Text style={styles.title}>Create memory ➕</Text>
-
-          <Pressable onPress={pickImage} style={styles.pickBtn}>
-            <Text style={styles.pickBtnText}>{imageUri ? "Change photo" : "Pick a photo"}</Text>
-          </Pressable>
-
-          {imageUri && <Image source={{ uri: imageUri }} style={styles.preview} />}
-          {imageUri && (
-          <View style={styles.photoActions}>
-            <Pressable  onPress={() => setImageUri(null)}  style={styles.secondaryBtn}>
-            <Text style={styles.secondaryBtnText}>Remove</Text>
-            </Pressable>
- 
-            <Pressable onPress={pickImage} style={styles.secondaryBtn}>
-            <Text style={styles.secondaryBtnText}>Choose another</Text>
-            </Pressable>
-          </View>
-)}
-
-
-          <TextInput
-            value={caption}
-            onChangeText={(text) => setCaption(text.slice(0, MAX_CHARS))}
-            onFocus={() => setCaptionFocused(true)}
-            onBlur={() => setCaptionFocused(false)}
-            placeholder="Write a caption…"
-            style={styles.input}
-            multiline
-            />
-          <Text style={styles.counter}>
-            {caption.length} / {MAX_CHARS}
-          </Text>
-          <Pressable
-            onPress={publish}
-            disabled={!canPost}
-            style={[styles.postBtn, !canPost && styles.postBtnDisabled]}
+    <Screen title="Create">
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={90} // ajustable si ves que aún tapa
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <ScrollView
+            contentContainerStyle={styles.container}
+            keyboardShouldPersistTaps="handled"
           >
-            <Text style={styles.postBtnText}>Post</Text>
-          </Pressable>
+            <Text style={styles.title}>Create memory ➕</Text>
 
-        </ScrollView>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
-  </Screen>
-);
+            <Pressable onPress={pickImage} style={styles.pickBtn}>
+              <Text style={styles.pickBtnText}>
+                {imageUri ? "Change photo" : "Pick a photo"}
+              </Text>
+            </Pressable>
 
+            {imageUri && <Image source={{ uri: imageUri }} style={styles.preview} />}
+            {imageUri && (
+              <View style={styles.photoActions}>
+                <Pressable onPress={() => setImageUri(null)} style={styles.secondaryBtn}>
+                  <Text style={styles.secondaryBtnText}>Remove</Text>
+                </Pressable>
+
+                <Pressable onPress={pickImage} style={styles.secondaryBtn}>
+                  <Text style={styles.secondaryBtnText}>Choose another</Text>
+                </Pressable>
+              </View>
+            )}
+
+            <TextInput
+              value={caption}
+              onChangeText={(text) => setCaption(text.slice(0, MAX_CHARS))}
+              onFocus={() => setCaptionFocused(true)}
+              onBlur={() => setCaptionFocused(false)}
+              placeholder="Write a caption…"
+              style={styles.input}
+              multiline
+            />
+            <Text style={styles.counter}>
+              {caption.length} / {MAX_CHARS}
+            </Text>
+            <Pressable
+              onPress={publish}
+              disabled={!canPost}
+              style={[styles.postBtn, !canPost && styles.postBtnDisabled]}
+            >
+              <Text style={styles.postBtnText}>Post</Text>
+            </Pressable>
+          </ScrollView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </Screen>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -180,5 +179,4 @@ const styles = StyleSheet.create({
   secondaryBtnText: {
     fontWeight: "700",
   },
-
 });

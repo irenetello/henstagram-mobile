@@ -49,6 +49,11 @@ const styles = StyleSheet.create({
   likes: { marginTop: 10, color: "#444" },
 
   center: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12 },
-  backBtn: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10, backgroundColor: "#eee" },
+  backBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: "#eee",
+  },
   backText: { fontWeight: "700" },
 });

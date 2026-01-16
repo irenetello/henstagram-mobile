@@ -70,6 +70,6 @@ export const usePostsStore = create<PostsState>()(
 
       // guardamos solo lo necesario
       partialize: (state) => ({ posts: state.posts }),
-    }
-  )
+    },
+  ),
 );

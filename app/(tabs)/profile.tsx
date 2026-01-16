@@ -10,7 +10,7 @@ export default function ProfileScreen() {
 
   const myPosts = useMemo(
     () => posts.filter((p) => p.authorName === CURRENT_USER),
-    [posts]
+    [posts],
   );
 
   return (
@@ -25,7 +25,10 @@ export default function ProfileScreen() {
         keyExtractor={(item) => item.id}
         numColumns={3}
         renderItem={({ item }) => (
-          <Pressable style={styles.tile} onPress={() => router.push(`/post/${item.id}` as any)}>
+          <Pressable
+            style={styles.tile}
+            onPress={() => router.push(`/post/${item.id}` as any)}
+          >
             <Image source={{ uri: item.imageUrl }} style={styles.img} />
           </Pressable>
         )}

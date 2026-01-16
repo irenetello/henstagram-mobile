@@ -27,19 +27,24 @@ export default function TabsLayout() {
   const isDraftDirty = !!draftImage || draftCaption.trim().length > 0;
 
   const resetDraft = useCreateDraftStore((s) => s.resetDraft);
-  const isSwipeEnabled = !(activeTab === "create" && (isKeyboardOpen || isCaptionFocused || isDraftDirty));
-
+  const isSwipeEnabled = !(
+    activeTab === "create" &&
+    (isKeyboardOpen || isCaptionFocused || isDraftDirty)
+  );
 
   useEffect(() => {
-    const showSub = Keyboard.addListener("keyboardDidShow", () => setIsKeyboardOpen(true));
-    const hideSub = Keyboard.addListener("keyboardDidHide", () => setIsKeyboardOpen(false));
+    const showSub = Keyboard.addListener("keyboardDidShow", () =>
+      setIsKeyboardOpen(true),
+    );
+    const hideSub = Keyboard.addListener("keyboardDidHide", () =>
+      setIsKeyboardOpen(false),
+    );
 
     return () => {
       showSub.remove();
       hideSub.remove();
     };
   }, []);
-
 
   const goTo = (tab: TabKey) => {
     if (tab === activeTab) return;
@@ -63,7 +68,7 @@ export default function TabsLayout() {
               pagerRef.current?.setPage(index);
             },
           },
-        ]
+        ],
       );
       return;
     }
@@ -71,8 +76,7 @@ export default function TabsLayout() {
     const index = TAB_ORDER.indexOf(tab);
     setActiveIndex(index);
     pagerRef.current?.setPage(index);
- };
-
+  };
 
   return (
     <View style={styles.container}>
@@ -83,7 +87,6 @@ export default function TabsLayout() {
         scrollEnabled={isSwipeEnabled}
         onPageSelected={(e) => setActiveIndex(e.nativeEvent.position)}
       >
-
         <View key="feed" style={styles.page}>
           <FeedScreen />
         </View>
@@ -103,7 +106,6 @@ export default function TabsLayout() {
       <SafeAreaView edges={["bottom"]} style={styles.safeBottom}>
         <BottomTabBar activeTab={activeTab} onTabPress={goTo} />
       </SafeAreaView>
-
     </View>
   );
 }

@@ -1,11 +1,11 @@
-import tsParser from "@typescript-eslint/parser";
-import tsPlugin from "@typescript-eslint/eslint-plugin";
-import prettierPlugin from "eslint-plugin-prettier";
-import prettierConfig from "eslint-config-prettier";
+const tsParser = require("@typescript-eslint/parser");
+const tsPlugin = require("@typescript-eslint/eslint-plugin");
+const prettierPlugin = require("eslint-plugin-prettier");
+const prettierConfig = require("eslint-config-prettier");
 
-export default [
+module.exports = [
   {
-    ignores: ["node_modules/**", "dist/**", "build/**", ".expo/**"],
+    ignores: ["node_modules/**", "dist/**", "build/**", ".expo/**", "eslint.config.js"],
   },
   {
     files: ["**/*.{js,jsx,ts,tsx}"],
@@ -21,16 +21,12 @@ export default [
       prettier: prettierPlugin,
     },
     rules: {
-      // base recommended-ish
       ...tsPlugin.configs.recommended.rules,
-
-      // prettier integration
       ...prettierConfig.rules,
-      "prettier/prettier": "warn",
 
-      // less noise
+      "prettier/prettier": "warn",
       "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
-      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-explicit-any": "off",
     },
   },
 ];

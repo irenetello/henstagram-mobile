@@ -23,7 +23,7 @@ module.exports = [
     rules: {
       ...tsPlugin.configs.recommended.rules,
       ...prettierConfig.rules,
-
+      "linebreak-style": "off",
       "prettier/prettier": "warn",
       "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
       "@typescript-eslint/no-explicit-any": "off",

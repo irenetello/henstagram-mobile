@@ -5,9 +5,11 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
+import { onAuthStateChanged, signInAnonymously } from "firebase/auth";
 
 import { useColorScheme } from "@/components/useColorScheme";
 import SpaceMonoFont from "../assets/fonts/SpaceMono-Regular.ttf";
+import { auth } from "./lib/firebase";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -27,6 +29,20 @@ export default function RootLayout() {
     SpaceMono: SpaceMonoFont,
     ...FontAwesome.font,
   });
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        try {
+          await signInAnonymously(auth);
+        } catch (e) {
+          console.error("Anonymous sign-in failed", e);
+        }
+      }
+    });
+
+    return unsub;
+  }, []);
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {

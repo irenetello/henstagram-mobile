@@ -1,7 +1,8 @@
 import { Screen } from "@/components/Screen";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import React from "react";
+import { publishPost } from "../lib/firebasePosts";
+import React, { useEffect, useState } from "react";
 
 import {
   Alert,
@@ -19,6 +20,8 @@ import {
 } from "react-native";
 import { useCreateDraftStore } from "../store/createDraftStore";
 import { usePostsStore } from "../store/postsStore";
+import { auth } from "../lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 const MAX_CHARS = 140;
 
@@ -32,7 +35,6 @@ export default function CreateScreen() {
   const setCaption = useCreateDraftStore((s) => s.setCaption);
   const setCaptionFocused = useCreateDraftStore((s) => s.setCaptionFocused);
   const resetDraft = useCreateDraftStore((s) => s.resetDraft);
-
   const canPost = !!imageUri && caption.trim().length > 0;
 
   const pickImage = async () => {
@@ -54,14 +56,26 @@ export default function CreateScreen() {
     }
   };
 
-  const publish = () => {
+  const publish = async () => {
     if (!canPost) return;
 
-    addPost({ imageUrl: imageUri, caption });
-    resetDraft();
+    try {
+      await publishPost(imageUri!, caption);
+      resetDraft();
+      router.replace("/(tabs)/feed");
+    } catch (e) {
+      console.error("UPLOAD ERROR:", e);
+      Alert.alert("Error", "Failed to upload post");
+    }
+};
+const [authReady, setAuthReady] = useState(false);
 
-    router.replace("/(tabs)/feed");
-  };
+useEffect(() => {
+  const unsub = onAuthStateChanged(auth, (user) => {
+    setAuthReady(!!user);
+  });
+  return unsub;
+}, []);
 
   return (
     <Screen title="Create">

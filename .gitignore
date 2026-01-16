@@ -45,3 +45,6 @@ yarn-error.*
 coverage/
 .vitest/
 *.log
+
+# dotenv environment variables file
+.env

@@ -2,7 +2,7 @@ import { Screen } from "@/components/Screen";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { publishPost } from "@/src/lib/firebasePosts";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import {
   ActivityIndicator,
@@ -20,16 +20,16 @@ import {
   View,
 } from "react-native";
 
-import { onAuthStateChanged } from "firebase/auth";
 import { useCreateDraftStore } from "@/src/store/createDraftStore";
-import { auth } from "@/src/lib/auth";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useAuth } from "@/src/auth/AuthProvider";
 
 const MAX_CHARS = 140;
 
 export default function CreateScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { user, initializing } = useAuth();
 
   const imageUri = useCreateDraftStore((s) => s.imageUri);
   const caption = useCreateDraftStore((s) => s.caption);
@@ -38,17 +38,11 @@ export default function CreateScreen() {
   const setCaptionFocused = useCreateDraftStore((s) => s.setCaptionFocused);
   const resetDraft = useCreateDraftStore((s) => s.resetDraft);
 
-  const [authReady, setAuthReady] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
 
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => setAuthReady(!!user));
-    return unsub;
-  }, []);
-
   const canPost = useMemo(() => {
-    return authReady && !!imageUri && caption.trim().length > 0 && !isPublishing;
-  }, [authReady, imageUri, caption, isPublishing]);
+    return !!user && !!imageUri && caption.trim().length > 0 && !isPublishing;
+  }, [user, imageUri, caption, isPublishing]);
 
   const pickImage = async () => {
     if (isPublishing) return;
@@ -174,7 +168,7 @@ export default function CreateScreen() {
                 </View>
               ) : (
                 <Text style={styles.postBtnText}>
-                  {!authReady ? "Checking session…" : "Post"}
+                  {initializing ? "Checking session…" : "Post"}
                 </Text>
               )}
             </Pressable>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Text, TextInput, Pressable } from "react-native";
 import { router } from "expo-router";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/src/lib/firebase";
 import { auth } from "@/src/lib/auth";
@@ -26,12 +26,23 @@ export default function LoginScreen() {
       const invited = await getDoc(doc(db, "allowedEmails", cleanEmail));
       if (!invited.exists()) {
         setErr("No estás en la lista del grupo 🙂");
+        await signOut(auth); // <- IMPORTANT: si no está invitado, fuera sesión
         return;
       }
 
       router.replace("/(tabs)/feed");
     } catch (e: any) {
-      setErr(e?.message ?? "Login error");
+      const code = e?.code;
+
+      if (code === "auth/invalid-credential" || code === "auth/wrong-password") {
+        setErr("Email o contraseña incorrectos.");
+      } else if (code === "auth/user-not-found") {
+        setErr("Ese usuario no existe.");
+      } else if (code === "auth/too-many-requests") {
+        setErr("Demasiados intentos. Espera un momento y prueba otra vez.");
+      } else {
+        setErr("No se pudo iniciar sesión.");
+      }
     } finally {
       setLoading(false);
     }

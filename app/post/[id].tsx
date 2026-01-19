@@ -1,7 +1,7 @@
+import { usePostsStore } from "@/src/store/postsStore";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import { usePostsStore } from "../store/postsStore";
 
 export default function PostDetail() {
   const router = useRouter();

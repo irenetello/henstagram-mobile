@@ -1,7 +1,7 @@
 import { Screen } from "@/components/Screen";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import { publishPost } from "../lib/firebasePosts";
+import { publishPost } from "../../src/lib/firebasePosts";
 import React, { useEffect, useState } from "react";
 
 import {
@@ -18,10 +18,11 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { useCreateDraftStore } from "../store/createDraftStore";
-import { usePostsStore } from "../store/postsStore";
-import { auth } from "../lib/firebase";
+
 import { onAuthStateChanged } from "firebase/auth";
+import { useCreateDraftStore } from "@/src/store/createDraftStore";
+import { usePostsStore } from "@/src/store/postsStore";
+import { auth } from "@/src/lib/auth";
 
 const MAX_CHARS = 140;
 
@@ -67,15 +68,15 @@ export default function CreateScreen() {
       console.error("UPLOAD ERROR:", e);
       Alert.alert("Error", "Failed to upload post");
     }
-};
-const [authReady, setAuthReady] = useState(false);
+  };
+  const [authReady, setAuthReady] = useState(false);
 
-useEffect(() => {
-  const unsub = onAuthStateChanged(auth, (user) => {
-    setAuthReady(!!user);
-  });
-  return unsub;
-}, []);
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (user) => {
+      setAuthReady(!!user);
+    });
+    return unsub;
+  }, []);
 
   return (
     <Screen title="Create">

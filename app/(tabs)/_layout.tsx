@@ -8,8 +8,8 @@ import FeedScreen from "./feed";
 import ProfileScreen from "./profile";
 
 import { BottomTabBar } from "@/components/BottomTabBar";
-import { useCreateDraftStore } from "../store/createDraftStore";
 import ChallengesScreen from "./challenges";
+import { useCreateDraftStore } from "@/src/store/createDraftStore";
 
 type TabKey = "feed" | "create" | "challenges" | "profile";
 

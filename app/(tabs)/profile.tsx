@@ -1,48 +1,61 @@
+import { FlatList, View, ActivityIndicator, Dimensions, StyleSheet } from "react-native";
+import { Image } from "expo-image";
 import { Screen } from "@/components/Screen";
-import { useRouter } from "expo-router";
-import React, { useMemo } from "react";
-import { FlatList, Image, Pressable, StyleSheet, Text, View } from "react-native";
-import { CURRENT_USER, usePostsStore } from "../store/postsStore";
+import { useMyPosts } from "@/src/hooks/useMyPosts";
+
+const GAP = 2;
+const COLS = 3;
+const W = Dimensions.get("window").width;
+const TILE = Math.floor((W - GAP * (COLS - 1) - 24) / COLS);
+// 24 = paddingHorizontal 12 + 12
 
 export default function ProfileScreen() {
-  const router = useRouter();
-  const posts = usePostsStore((s) => s.posts);
+  const { posts, loading } = useMyPosts();
 
-  const myPosts = useMemo(
-    () => posts.filter((p) => p.authorName === CURRENT_USER),
-    [posts],
-  );
+  if (loading) return <ActivityIndicator style={{ marginTop: 24 }} />;
 
   return (
     <Screen title="Profile">
-      <View style={styles.header}>
-        <Text style={styles.name}>{CURRENT_USER}</Text>
-        <Text style={styles.sub}>{myPosts.length} posts</Text>
-      </View>
-
       <FlatList
-        data={myPosts}
+        data={posts}
         keyExtractor={(item) => item.id}
-        numColumns={3}
+        numColumns={COLS}
+        columnWrapperStyle={styles.row}
+        contentContainerStyle={styles.list}
         renderItem={({ item }) => (
-          <Pressable
-            style={styles.tile}
-            onPress={() => router.push(`/post/${item.id}` as any)}
-          >
-            <Image source={{ uri: item.imageUrl }} style={styles.img} />
-          </Pressable>
+          <View style={styles.tile}>
+            <Image
+              source={{ uri: item.imageUrl }}
+              style={styles.img}
+              contentFit="cover"
+              transition={120}
+            />
+          </View>
         )}
-        showsVerticalScrollIndicator={false}
       />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  header: { paddingHorizontal: 16, paddingTop: 14, paddingBottom: 10 },
-  name: { fontSize: 22, fontWeight: "700" },
-  sub: { marginTop: 4, color: "#666" },
-
-  tile: { width: "33.3333%", aspectRatio: 1, padding: 1 },
-  img: { width: "100%", height: "100%" },
+  list: {
+    paddingHorizontal: 12,
+    paddingTop: 12,
+    paddingBottom: 24,
+  },
+  row: {
+    gap: GAP,
+    marginBottom: GAP,
+  },
+  tile: {
+    width: TILE,
+    height: TILE,
+    borderRadius: 10,
+    overflow: "hidden",
+    backgroundColor: "#111",
+  },
+  img: {
+    width: "100%",
+    height: "100%",
+  },
 });

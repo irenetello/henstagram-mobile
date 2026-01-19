@@ -1,7 +1,7 @@
 import { FlatList, View, ActivityIndicator, Text, StyleSheet } from "react-native";
 import { Image } from "expo-image";
 import { Screen } from "@/components/Screen";
-import { usePosts } from "../hooks/usePosts";
+import { usePosts } from "@/src/hooks/usePosts";
 
 export default function FeedScreen() {
   const { posts, loading } = usePosts();

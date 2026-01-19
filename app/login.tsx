@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { View, Text, TextInput, Pressable } from "react-native";
+import { Text, TextInput, Pressable } from "react-native";
 import { router } from "expo-router";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/src/lib/firebase";
 import { auth } from "@/src/lib/auth";
+import { Screen } from "@/components/Screen";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -37,7 +38,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={{ padding: 16, gap: 12 }}>
+    <Screen title="Login">
       <Text style={{ fontSize: 28, fontWeight: "700" }}>Henstagram</Text>
 
       <TextInput
@@ -72,6 +73,6 @@ export default function LoginScreen() {
       >
         <Text style={{ fontWeight: "600" }}>{loading ? "Entrando..." : "Sign in"}</Text>
       </Pressable>
-    </View>
+    </Screen>
   );
 }

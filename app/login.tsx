@@ -3,7 +3,7 @@ import { View, Text, TextInput, Pressable } from "react-native";
 import { router } from "expo-router";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../src/lib/firebase";
+import { db } from "@/src/lib/firebase";
 import { auth } from "@/src/lib/auth";
 
 export default function LoginScreen() {

@@ -2,14 +2,8 @@ import { useEffect, useState } from "react";
 import { collection, limit, onSnapshot, orderBy, query, where } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { useAuth } from "@/src/auth/AuthProvider";
-
-export type Post = {
-  id: string;
-  uid: string;
-  imageUrl: string;
-  caption?: string;
-  createdAt?: any;
-};
+import type { Post } from "../types/post";
+import { mapPostDoc } from "@/src/lib/posts/mapPost";
 
 export function useMyPosts() {
   const { user, initializing } = useAuth();
@@ -29,7 +23,7 @@ export function useMyPosts() {
 
     const q = query(
       collection(db, "posts"),
-      where("uid", "==", user.uid),
+      where("userId", "==", user.uid), // ✅ aquí está el fix
       orderBy("createdAt", "desc"),
       limit(120),
     );
@@ -37,11 +31,7 @@ export function useMyPosts() {
     const unsub = onSnapshot(
       q,
       (snap) => {
-        const data = snap.docs.map((d) => ({
-          id: d.id,
-          ...(d.data() as Omit<Post, "id">),
-        }));
-        setPosts(data);
+        setPosts(snap.docs.map(mapPostDoc));
         setLoading(false);
       },
       (err) => {
@@ -50,7 +40,7 @@ export function useMyPosts() {
       },
     );
 
-    return unsub;
+    return () => unsub();
   }, [user, initializing]);
 
   return { posts, loading };

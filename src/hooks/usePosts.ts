@@ -1,14 +1,8 @@
 import { useEffect, useState } from "react";
 import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "../lib/firebase";
-
-export type Post = {
-  id: string;
-  uid: string;
-  imageUrl: string;
-  caption?: string;
-  createdAt?: any;
-};
+import type { Post } from "../types/post";
+import { mapPostDoc } from "@/src/lib/posts/mapPost";
 
 export function usePosts() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -20,12 +14,7 @@ export function usePosts() {
     const unsub = onSnapshot(
       q,
       (snap) => {
-        const data = snap.docs.map((d) => ({
-          id: d.id,
-          ...(d.data() as Omit<Post, "id">),
-        }));
-
-        setPosts(data);
+        setPosts(snap.docs.map(mapPostDoc));
         setLoading(false);
       },
       (err) => {

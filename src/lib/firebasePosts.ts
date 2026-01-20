@@ -1,9 +1,7 @@
-/* eslint-disable prettier/prettier */
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-
-import { storage, db } from "./firebase";
+import { storage } from "./firebase";
 import { auth } from "./auth";
+import { createPost } from "./posts/postApi";
 
 // helper: convertir uri local (file://) a Blob
 async function uriToBlob(uri: string): Promise<Blob> {
@@ -24,15 +22,12 @@ export async function publishPost(imageUri: string, caption: string) {
   await uploadBytes(storageRef, blob);
   const imageUrl = await getDownloadURL(storageRef);
 
-  await addDoc(collection(db, "posts"), {
-    // Guarda ambos por compatibilidad (tú antes ya estabas usando userId)
-    uid: user.uid,
+  await createPost({
     userId: user.uid,
-
-    authorEmail: user.email ?? null,
-    caption,
     imageUrl,
-
-    createdAt: serverTimestamp(),
+    caption,
+    storagePath,
+    username: user.displayName ?? undefined,
+    userEmail: user.email ?? undefined,
   });
 }

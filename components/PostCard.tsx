@@ -1,14 +1,6 @@
+import { Post } from "@/src/types/post";
 import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-
-export type Post = {
-  id: string;
-  imageUrl: string;
-  caption: string;
-  authorName: string;
-  createdAt: number;
-  likesCount?: number;
-};
 
 export default function PostCard({
   post,
@@ -20,7 +12,7 @@ export default function PostCard({
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <Text style={styles.author}>{post.authorName}</Text>
+        <Text style={styles.author}>{post.username}</Text>
       </View>
 
       <Pressable onPress={onPressImage}>

@@ -1,7 +1,6 @@
 import { Screen } from "@/components/Screen/Screen";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import { publishPost } from "@/src/lib/firebasePosts";
 import React, { useMemo, useState } from "react";
 
 import {
@@ -23,6 +22,7 @@ import { useCreateDraftStore } from "@/src/store/createDraftStore";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/src/auth/AuthProvider";
 import { styles } from "@/src/styles/Create.styles";
+import { publishPost } from "@/src/lib/posts/firebasePosts";
 
 const MAX_CHARS = 140;
 

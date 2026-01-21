@@ -18,12 +18,55 @@ import { auth } from "@/src/lib/auth";
 import { deletePost } from "@/src/lib/posts/postApi";
 import { Post } from "@/src/types/post";
 import { COLS, styles } from "@/src/styles/ProfileScreen.styles";
+import { useIsLiked } from "@/src/hooks/useIsLiked";
+import { toggleLike } from "@/src/lib/posts/likeApi";
+import { useAuth } from "../auth/AuthProvider";
+import { useLikesCount } from "../hooks/useLikesCount";
+
+type LikeRowProps = { postId: string; likesCount: number };
+
+function LikeRow({ postId, likesCount }: LikeRowProps) {
+  const { user } = useAuth();
+  const liked = useIsLiked(postId);
+
+  const onToggle = async () => {
+    if (!user) return;
+    try {
+      await toggleLike({ postId, userId: user.uid });
+    } catch (e) {
+      console.error("TOGGLE LIKE ERROR:", e);
+    }
+  };
+
+  return (
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+      }}
+    >
+      <Pressable onPress={onToggle} hitSlop={10} style={{ marginRight: 8 }}>
+        <Ionicons
+          name={liked ? "heart" : "heart-outline"}
+          size={24}
+          color={liked ? "#ff0000" : "#000000"}
+        />
+      </Pressable>
+      <Text style={{ fontSize: 14, fontWeight: "600" }}>{likesCount}</Text>
+    </View>
+  );
+}
 
 export default function ProfileScreen() {
   const { posts, loading } = useMyPosts();
 
   const [selected, setSelected] = useState<Post | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // ✅ Solo llamar al hook si hay un post seleccionado
+  const selectedLikesCount = useLikesCount(selected?.id ?? null);
 
   const logout = async () => {
     try {
@@ -122,6 +165,17 @@ export default function ProfileScreen() {
               contentFit="cover"
               transition={150}
             />
+          ) : null}
+
+          {/* Likes */}
+          {selected ? (
+            <LikeRow postId={selected.id} likesCount={selectedLikesCount} />
+          ) : null}
+
+          {selected?.caption?.trim() ? (
+            <View style={styles.captionWrap}>
+              <Text style={styles.captionText}>{selected.caption}</Text>
+            </View>
           ) : null}
         </View>
 

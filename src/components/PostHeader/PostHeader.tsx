@@ -37,7 +37,7 @@ export function PostHeader({ displayName, isOwner, onDelete }: Props) {
       {isOwner ? (
         <>
           <Pressable onPress={() => setOpen(true)} hitSlop={10}>
-            <Ionicons name="ellipsis-horizontal" size={20} color="white" />
+            <Ionicons name="ellipsis-horizontal" size={20} color="black" />
           </Pressable>
 
           <Modal

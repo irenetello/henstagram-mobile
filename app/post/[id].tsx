@@ -2,6 +2,7 @@ import { usePostsStore } from "@/src/store/postsStore";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { useLikesCount } from "@/src/hooks/useLikesCount";
 
 export default function PostDetail() {
   const router = useRouter();
@@ -9,6 +10,7 @@ export default function PostDetail() {
 
   const getPostById = usePostsStore((s) => s.getPostById);
   const post = useMemo(() => (id ? getPostById(id) : undefined), [id, getPostById]);
+  const likesCount = useLikesCount(post?.id ?? "");
 
   if (!post) {
     return (
@@ -31,7 +33,7 @@ export default function PostDetail() {
       <View style={styles.meta}>
         <Text style={styles.author}>{post.authorName}</Text>
         <Text style={styles.caption}>{post.caption}</Text>
-        <Text style={styles.likes}>❤️ {post.likesCount ?? 0}</Text>
+        <Text style={styles.likes}>❤️ {likesCount}</Text>
       </View>
     </View>
   );

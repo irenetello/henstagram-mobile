@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
   card: {
     borderRadius: 18,
     overflow: "hidden",
-    backgroundColor: "#111",
+    backgroundColor: "#FFFFFF",
   },
 
   image: {
@@ -22,7 +22,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   captionText: {
-    color: "white",
+    color: "black",
     fontSize: 14,
     opacity: 0.92,
   },
@@ -37,5 +37,20 @@ export const styles = StyleSheet.create({
   emptySubtitle: {
     fontSize: 14,
     opacity: 0.7,
+  },
+  likesRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingTop: 10,
+    gap: 8,
+  },
+  likeBtn: {
+    paddingVertical: 2,
+  },
+  likesText: {
+    color: "black",
+    fontSize: 14,
+    opacity: 0.9,
   },
 });

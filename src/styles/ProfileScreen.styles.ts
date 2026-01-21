@@ -30,7 +30,15 @@ export const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-
+  captionWrap: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  captionText: {
+    color: "black",
+    fontSize: 14,
+    opacity: 0.92,
+  },
   // ✅ modal detalle
   detailWrap: {
     flex: 1,

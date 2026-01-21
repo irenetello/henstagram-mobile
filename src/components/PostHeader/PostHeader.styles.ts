@@ -9,7 +9,7 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   headerName: {
-    color: "white",
+    color: "black",
     fontSize: 14,
     fontWeight: "700",
     opacity: 0.95,

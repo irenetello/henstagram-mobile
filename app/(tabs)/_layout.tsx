@@ -7,7 +7,7 @@ import CreateScreen from "./Create";
 import FeedScreen from "./Feed";
 import ProfileScreen from "./ProfileScreen";
 
-import { BottomTabBar } from "@/components/BottomTabBar";
+import { BottomTabBar } from "@/src/components/BottomTabBar";
 import ChallengesScreen from "./challenges";
 import { useCreateDraftStore } from "@/src/store/createDraftStore";
 

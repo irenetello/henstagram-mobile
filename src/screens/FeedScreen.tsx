@@ -1,11 +1,11 @@
 import { FlatList, View, ActivityIndicator, Text } from "react-native";
 import { Image } from "expo-image";
 
-import { Screen } from "@/components/Screen/Screen";
+import { Screen } from "@/src/components/Screen/Screen";
 import { usePosts } from "@/src/hooks/usePosts";
 import { auth } from "@/src/lib/auth";
 import { deletePost } from "@/src/lib/posts/postApi";
-import { PostHeader } from "@/components/PostHeader/PostHeader";
+import { PostHeader } from "@/src/components/PostHeader/PostHeader";
 import { styles } from "@/src/styles/Feed.styles";
 
 export default function FeedScreen() {
@@ -14,7 +14,6 @@ export default function FeedScreen() {
   const uid = auth.currentUser?.uid ?? null;
 
   const handleDelete = async (post: any) => {
-    // Aquí luego enchufamos delete real:
     await deletePost(post);
     console.log("DELETE POST:", post.id);
   };

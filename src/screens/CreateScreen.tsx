@@ -1,4 +1,4 @@
-import { Screen } from "@/components/Screen/Screen";
+import { Screen } from "@/src/components/Screen/Screen";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";

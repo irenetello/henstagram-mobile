@@ -11,7 +11,7 @@ import {
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 
-import { Screen } from "@/components/Screen/Screen";
+import { Screen } from "@/src/components/Screen/Screen";
 import { useMyPosts } from "@/src/hooks/useMyPosts";
 import { signOut } from "firebase/auth";
 import { auth } from "@/src/lib/auth";

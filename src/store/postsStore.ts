@@ -1,4 +1,4 @@
-import type { Post } from "@/components/PostCard";
+import type { Post } from "@/src/components/PostCard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";

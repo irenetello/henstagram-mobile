@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 
-import { Text, View } from "@/components/Themed";
+import { Text, View } from "@/src/components/Themed";
 
 export default function ChallengesScreen() {
   return (

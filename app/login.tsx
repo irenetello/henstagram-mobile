@@ -5,7 +5,7 @@ import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/src/lib/firebase";
 import { auth } from "@/src/lib/auth";
-import { Screen } from "@/components/Screen/Screen";
+import { Screen } from "@/src/components/Screen/Screen";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");

@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import { useColorScheme } from "@/components/useColorScheme";
+import { useColorScheme } from "@/src/components/useColorScheme";
 import SpaceMonoFont from "../assets/fonts/SpaceMono-Regular.ttf";
 import { AuthProvider, useAuth } from "@/src/auth/AuthProvider";
 

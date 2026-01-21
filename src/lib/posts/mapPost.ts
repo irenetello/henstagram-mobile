@@ -7,7 +7,7 @@ export function mapPostDoc(doc: QueryDocumentSnapshot<DocumentData>): Post {
   return {
     id: doc.id,
     userId: data.userId,
-    username: data.username ?? undefined,
+    username: data.username ?? "Hey Friend",
     userEmail: data.userEmail ?? undefined,
     imageUrl: data.imageUrl,
     storagePath: data.storagePath ?? undefined,

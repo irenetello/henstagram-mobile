@@ -2,6 +2,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { auth } from "../auth";
 import { createPost } from "./postApi";
 import { storage } from "../firebase";
+import { getUserProfile } from "../users/userApi";
 
 // helper: convertir uri local (file://) a Blob
 async function uriToBlob(uri: string): Promise<Blob> {
@@ -12,6 +13,8 @@ async function uriToBlob(uri: string): Promise<Blob> {
 export async function publishPost(imageUri: string, caption: string) {
   const user = auth.currentUser;
   if (!user) throw new Error("User not authenticated");
+
+  const profile = await getUserProfile(user.uid);
 
   const blob = await uriToBlob(imageUri);
 
@@ -27,7 +30,7 @@ export async function publishPost(imageUri: string, caption: string) {
     imageUrl,
     caption,
     storagePath,
-    username: user.displayName ?? undefined,
+    username: profile?.displayName ?? undefined, // 👈 aquí
     userEmail: user.email ?? undefined,
   });
 }

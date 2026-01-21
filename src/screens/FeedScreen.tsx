@@ -50,7 +50,7 @@ type PostItemProps = {
 
 function PostItem({ item, uid, onDelete }: PostItemProps) {
   const isOwner = uid != null && item.userId === uid;
-  const displayName = item.username ?? item.userEmail ?? "Unknown";
+  const displayName = item.username ?? item.userEmail ?? "Hey Friend";
 
   // ✅ Hooks aquí dentro: OK
   const likesCount = useLikesCount(item.id);
@@ -74,6 +74,7 @@ function PostItem({ item, uid, onDelete }: PostItemProps) {
 
       {item.caption?.trim() ? (
         <View style={styles.captionWrap}>
+          <Text style={styles.displayName}>{displayName}</Text>
           <Text style={styles.captionText}>{item.caption}</Text>
         </View>
       ) : null}

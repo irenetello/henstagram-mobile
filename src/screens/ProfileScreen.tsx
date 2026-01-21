@@ -174,6 +174,10 @@ export default function ProfileScreen() {
 
           {selected?.caption?.trim() ? (
             <View style={styles.captionWrap}>
+              <Text style={styles.displayName}>
+                {selected?.username ?? selected?.userEmail ?? "Hey Friend"}
+              </Text>
+
               <Text style={styles.captionText}>{selected.caption}</Text>
             </View>
           ) : null}

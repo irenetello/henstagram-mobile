@@ -18,8 +18,17 @@ export const styles = StyleSheet.create({
     height: 420,
   },
   captionWrap: {
+    display: "flex",
+    flexDirection: "row",
     paddingHorizontal: 12,
     paddingVertical: 10,
+  },
+  displayName: {
+    color: "black",
+    fontWeight: "700",
+    fontSize: 14,
+    marginBottom: 4,
+    marginRight: 6,
   },
   captionText: {
     color: "black",

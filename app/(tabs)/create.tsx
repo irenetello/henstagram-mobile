@@ -1,4 +1,4 @@
-import { Screen } from "@/components/Screen";
+import { Screen } from "@/components/Screen/Screen";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { publishPost } from "@/src/lib/firebasePosts";
@@ -13,7 +13,6 @@ import {
   Platform,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableWithoutFeedback,
@@ -23,6 +22,7 @@ import {
 import { useCreateDraftStore } from "@/src/store/createDraftStore";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/src/auth/AuthProvider";
+import { styles } from "@/src/styles/Create.styles";
 
 const MAX_CHARS = 140;
 
@@ -70,7 +70,7 @@ export default function CreateScreen() {
     try {
       await publishPost(imageUri!, caption.trim());
       resetDraft();
-      router.replace("/(tabs)/feed");
+      router.replace("/(tabs)/Feed");
     } catch (e) {
       console.error("UPLOAD ERROR:", e);
       Alert.alert("Error", "Failed to upload post");
@@ -178,67 +178,3 @@ export default function CreateScreen() {
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { padding: 16, gap: 12 },
-  title: { fontSize: 20, fontWeight: "700" },
-
-  pickBtn: {
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: "#eee",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  pickBtnText: { fontWeight: "700" },
-
-  previewWrap: { width: "100%", borderRadius: 16, overflow: "hidden" },
-  preview: { width: "100%", aspectRatio: 1, backgroundColor: "#ddd" },
-
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
-    backgroundColor: "rgba(255,255,255,0.75)",
-  },
-  overlayText: { color: "#111", fontWeight: "800" },
-
-  input: {
-    minHeight: 90,
-    borderRadius: 12,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "#ccc",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 15,
-  },
-  inputDisabled: { opacity: 0.7 },
-
-  counter: { alignSelf: "flex-end", fontSize: 12, color: "#666", marginTop: -4 },
-
-  postBtn: {
-    height: 46,
-    borderRadius: 12,
-    backgroundColor: "#111",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  postBtnDisabled: { opacity: 0.6 },
-  postBtnText: { color: "#fff", fontWeight: "800" },
-
-  postBtnRow: { flexDirection: "row", alignItems: "center", gap: 10 },
-
-  photoActions: { flexDirection: "row", gap: 10 },
-  secondaryBtn: {
-    flex: 1,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: "#eee",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  secondaryBtnText: { fontWeight: "700" },
-
-  disabled: { opacity: 0.6 },
-});

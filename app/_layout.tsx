@@ -63,7 +63,7 @@ function AuthGate() {
 
     // Con session → si estás en login, te saco a la app
     if (user && inLogin) {
-      router.replace("/(tabs)/feed");
+      router.replace("/(tabs)/Feed");
       return;
     }
 

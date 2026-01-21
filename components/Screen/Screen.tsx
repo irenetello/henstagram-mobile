@@ -1,6 +1,7 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { styles } from "./Screen.styles";
 
 type ScreenProps = {
   title?: string;
@@ -33,38 +34,3 @@ export function Screen({
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  header: {
-    height: 52,
-    justifyContent: "center",
-    paddingHorizontal: 16,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#ddd",
-    backgroundColor: "#fff",
-  },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  side: {
-    width: 80, // reserva espacio para centrar el título aunque haya botón a la derecha
-    justifyContent: "center",
-  },
-  sideRight: {
-    alignItems: "flex-end",
-  },
-  headerTitle: {
-    flex: 1,
-    textAlign: "center",
-    fontSize: 18,
-    fontWeight: "700",
-  },
-  content: {
-    flex: 1,
-  },
-});

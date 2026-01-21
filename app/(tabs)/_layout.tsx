@@ -3,9 +3,9 @@ import { Alert, Keyboard, StyleSheet, View } from "react-native";
 import PagerView from "react-native-pager-view";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import CreateScreen from "./create";
-import FeedScreen from "./feed";
-import ProfileScreen from "./profile";
+import CreateScreen from "./Create";
+import FeedScreen from "./Feed";
+import ProfileScreen from "./ProfileScreen";
 
 import { BottomTabBar } from "@/components/BottomTabBar";
 import ChallengesScreen from "./challenges";

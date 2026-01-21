@@ -1,7 +1,7 @@
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { storage } from "./firebase";
-import { auth } from "./auth";
-import { createPost } from "./posts/postApi";
+import { auth } from "../auth";
+import { createPost } from "./postApi";
+import { storage } from "../firebase";
 
 // helper: convertir uri local (file://) a Blob
 async function uriToBlob(uri: string): Promise<Blob> {

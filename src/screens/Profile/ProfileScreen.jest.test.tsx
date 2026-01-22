@@ -8,9 +8,6 @@ import ProfileScreen from "./ProfileScreen";
 import { useMyPosts } from "@/src/hooks/useMyPosts";
 import { signOut } from "firebase/auth";
 
-// ❌ NO HAGAS ESTO (rompe por hoisting de jest.mock):
-// import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-
 jest.mock("@/src/hooks/useMyPosts", () => ({
   useMyPosts: jest.fn(),
 }));
@@ -21,6 +18,17 @@ jest.mock("../../hooks/useLikesCount", () => ({
 
 jest.mock("@/src/hooks/useIsLiked", () => ({
   useIsLiked: jest.fn(() => false),
+}));
+
+// ✅ Agregar mock de useComments
+jest.mock("../../hooks/useComments", () => ({
+  useComments: jest.fn(() => ({ comments: [], loading: false })),
+}));
+
+// ✅ Agregar mock de commentApi
+jest.mock("@/src/lib/comments/commentApi", () => ({
+  addComment: jest.fn(),
+  deleteComment: jest.fn(),
 }));
 
 jest.mock("../../auth/AuthProvider", () => ({
@@ -77,6 +85,7 @@ jest.mock("@expo/vector-icons", () => {
   };
 });
 
+// ✅ FIX: Usar el path correcto
 jest.mock("@/src/screens/Profile/ProfileScreen.styles", () => ({
   COLS: 3,
   styles: {
@@ -107,7 +116,7 @@ const mockUseMyPosts = useMyPosts as unknown as jest.Mock;
 describe("ProfileScreen", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.spyOn(console, "error").mockImplementation(() => {}); // ✅ limpia el output
+    jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -119,7 +128,10 @@ describe("ProfileScreen", () => {
 
     render(<ProfileScreen />);
 
-    expect(screen.getByTestId("activity-indicator")).toBeTruthy();
+    // ✅ FIX: ActivityIndicator no tiene testID por defecto
+    expect(
+      screen.UNSAFE_getByType(require("react-native").ActivityIndicator),
+    ).toBeTruthy();
   });
 
   it("renders profile title", () => {
@@ -212,17 +224,19 @@ describe("ProfileScreen", () => {
 
     fireEvent.press(screen.getAllByText(/Image:/)[0]);
 
-    expect(screen.getByText("My post")).toBeTruthy();
+    // ✅ Verificar que el modal se abrió
+    expect(screen.getByText("testuser")).toBeTruthy();
+    expect(screen.getByText("25")).toBeTruthy();
   });
 
-  it("shows username in modal title", () => {
+  it("shows username in modal", () => {
     const mockPosts = [
       {
         id: "post-1",
         userId: "test-user-id",
         username: "cooluser",
         imageUrl: "https://example.com/image.jpg",
-        caption: "Test",
+        caption: "Test caption",
         storagePath: "path1",
         createdAt: new Date(),
       },
@@ -234,8 +248,50 @@ describe("ProfileScreen", () => {
 
     fireEvent.press(screen.getAllByText(/Image:/)[0]);
 
-    // ✅ aparece más de una vez, así que no uses getByText
-    expect(screen.getAllByText("cooluser").length).toBeGreaterThan(0);
+    expect(screen.getByText("cooluser")).toBeTruthy();
+  });
+
+  it("shows Post as title when username not available", () => {
+    const mockPosts = [
+      {
+        id: "post-1",
+        userId: "test-user-id",
+        userEmail: "test@example.com",
+        imageUrl: "https://example.com/image.jpg",
+        caption: "Test caption",
+        storagePath: "path1",
+        createdAt: new Date(),
+      },
+    ];
+
+    mockUseMyPosts.mockReturnValue({ posts: mockPosts, loading: false });
+
+    render(<ProfileScreen />);
+
+    fireEvent.press(screen.getAllByText(/Image:/)[0]);
+
+    expect(screen.getByText("Post")).toBeTruthy();
+  });
+
+  it("shows Post as title when no user info", () => {
+    const mockPosts = [
+      {
+        id: "post-1",
+        userId: "test-user-id",
+        imageUrl: "https://example.com/image.jpg",
+        caption: "Test caption",
+        storagePath: "path1",
+        createdAt: new Date(),
+      },
+    ];
+
+    mockUseMyPosts.mockReturnValue({ posts: mockPosts, loading: false });
+
+    render(<ProfileScreen />);
+
+    fireEvent.press(screen.getAllByText(/Image:/)[0]);
+
+    expect(screen.getByText("Post")).toBeTruthy();
   });
 
   it("displays likes count in modal", () => {
@@ -258,5 +314,114 @@ describe("ProfileScreen", () => {
     fireEvent.press(screen.getAllByText(/Image:/)[0]);
 
     expect(screen.getByText("25")).toBeTruthy();
+  });
+
+  it("shows delete option for own posts", () => {
+    const mockPosts = [
+      {
+        id: "post-1",
+        userId: "test-user-id",
+        username: "me",
+        imageUrl: "https://example.com/image.jpg",
+        caption: "My post",
+        storagePath: "path1",
+        createdAt: new Date(),
+      },
+    ];
+
+    mockUseMyPosts.mockReturnValue({ posts: mockPosts, loading: false });
+
+    render(<ProfileScreen />);
+
+    fireEvent.press(screen.getAllByText(/Image:/)[0]);
+
+    const menuButton = screen.getByText("ellipsis-horizontal");
+    fireEvent.press(menuButton);
+
+    expect(screen.getByText("Borrar")).toBeTruthy();
+  });
+
+  it("shows confirmation alert when delete pressed", () => {
+    const mockPosts = [
+      {
+        id: "post-1",
+        userId: "test-user-id",
+        username: "me",
+        imageUrl: "https://example.com/image.jpg",
+        caption: "My post",
+        storagePath: "path1",
+        createdAt: new Date(),
+      },
+    ];
+
+    mockUseMyPosts.mockReturnValue({ posts: mockPosts, loading: false });
+
+    render(<ProfileScreen />);
+
+    fireEvent.press(screen.getAllByText(/Image:/)[0]);
+
+    const menuButton = screen.getByText("ellipsis-horizontal");
+    fireEvent.press(menuButton);
+
+    const deleteButton = screen.getByText("Borrar");
+    fireEvent.press(deleteButton);
+
+    expect(Alert.alert).toHaveBeenCalledWith(
+      "Borrar post",
+      "¿Seguro que quieres borrar esta foto?",
+      expect.any(Array),
+    );
+  });
+
+  it("doesn't render caption when empty", () => {
+    const mockPosts = [
+      {
+        id: "post-1",
+        userId: "test-user-id",
+        username: "testuser",
+        imageUrl: "https://example.com/image.jpg",
+        caption: "",
+        storagePath: "path1",
+        createdAt: new Date(),
+      },
+    ];
+
+    mockUseMyPosts.mockReturnValue({ posts: mockPosts, loading: false });
+
+    render(<ProfileScreen />);
+
+    fireEvent.press(screen.getAllByText(/Image:/)[0]);
+
+    // ✅ FIX: Cuando caption está vacío, NO se muestra la sección de caption
+    // Solo debe aparecer "testuser" en el header, no en caption
+    const usernames = screen.getAllByText("testuser");
+    expect(usernames.length).toBe(1); // Solo en header
+  });
+
+  it("closes modal when close button pressed", () => {
+    const mockPosts = [
+      {
+        id: "post-1",
+        userId: "test-user-id",
+        username: "testuser",
+        imageUrl: "https://example.com/image.jpg",
+        caption: "My post",
+        storagePath: "path1",
+        createdAt: new Date(),
+      },
+    ];
+
+    mockUseMyPosts.mockReturnValue({ posts: mockPosts, loading: false });
+
+    render(<ProfileScreen />);
+
+    fireEvent.press(screen.getAllByText(/Image:/)[0]);
+
+    expect(screen.getByText("testuser")).toBeTruthy();
+
+    const closeButton = screen.getByText("close");
+    fireEvent.press(closeButton);
+
+    expect(screen.queryByText("My post")).toBeNull();
   });
 });

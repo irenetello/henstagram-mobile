@@ -48,3 +48,11 @@ coverage/
 
 # dotenv environment variables file
 .env
+
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+
+# Android Studio build & misc (por si acaso)
+*.hprof

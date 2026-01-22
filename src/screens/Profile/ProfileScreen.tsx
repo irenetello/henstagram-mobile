@@ -17,11 +17,11 @@ import { signOut } from "firebase/auth";
 import { auth } from "@/src/lib/auth";
 import { deletePost } from "@/src/lib/posts/postApi";
 import { Post } from "@/src/types/post";
-import { COLS, styles } from "@/src/styles/ProfileScreen.styles";
+import { COLS, styles } from "@/src/screens/Profile/ProfileScreen.styles";
 import { useIsLiked } from "@/src/hooks/useIsLiked";
 import { toggleLike } from "@/src/lib/posts/likeApi";
-import { useAuth } from "../auth/AuthProvider";
-import { useLikesCount } from "../hooks/useLikesCount";
+import { useAuth } from "../../auth/AuthProvider";
+import { useLikesCount } from "../../hooks/useLikesCount";
 
 type LikeRowProps = { postId: string; likesCount: number };
 
@@ -102,7 +102,8 @@ export default function ProfileScreen() {
     ]);
   };
 
-  if (loading) return <ActivityIndicator style={{ marginTop: 24 }} />;
+  if (loading)
+    return <ActivityIndicator testID="activity-indicator" style={{ marginTop: 24 }} />;
 
   return (
     <Screen

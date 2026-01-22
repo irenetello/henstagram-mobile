@@ -21,7 +21,7 @@ import {
 import { useCreateDraftStore } from "@/src/store/createDraftStore";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/src/auth/AuthProvider";
-import { styles } from "@/src/styles/Create.styles";
+import { styles } from "@/src/screens/Create/CreateScreen.styles";
 import { publishPost } from "@/src/lib/posts/firebasePosts";
 
 const MAX_CHARS = 140;

@@ -7,12 +7,12 @@ export function mapPostDoc(doc: QueryDocumentSnapshot<DocumentData>): Post {
   return {
     id: doc.id,
     userId: data.userId,
-    username: data.username ?? "Hey Friend",
-    userEmail: data.userEmail ?? undefined,
     imageUrl: data.imageUrl,
-    storagePath: data.storagePath ?? undefined,
+    caption: data.caption,
+    createdAt: data.createdAt,
     likesCount: data.likesCount ?? 0,
-    caption: data.caption ?? "",
-    createdAt: (data.createdAt as Timestamp) ?? null,
+    storagePath: data.storagePath,
+    userEmail: data.userEmail,
+    username: data.username,
   };
 }

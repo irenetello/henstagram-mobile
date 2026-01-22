@@ -6,12 +6,12 @@ import { usePosts } from "@/src/hooks/usePosts";
 import { auth } from "@/src/lib/auth";
 import { deletePost } from "@/src/lib/posts/postApi";
 import { PostHeader } from "@/src/components/PostHeader/PostHeader";
-import { styles } from "@/src/styles/Feed.styles";
+import { styles } from "@/src/screens/Feed/FeedScreen.styles";
 import { useIsLiked } from "@/src/hooks/useIsLiked";
 import { toggleLike } from "@/src/lib/posts/likeApi";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuth } from "../auth/AuthProvider";
-import { useLikesCount } from "../hooks/useLikesCount";
+import { useAuth } from "@/src/auth/AuthProvider";
+import { useLikesCount } from "@/src/hooks/useLikesCount";
 
 type LikeRowProps = { postId: string; likesCount: number };
 
@@ -92,7 +92,8 @@ export default function FeedScreen() {
     console.log("DELETE POST:", post.id);
   };
 
-  if (loading) return <ActivityIndicator style={{ marginTop: 24 }} />;
+  if (loading)
+    return <ActivityIndicator testID="activity-indicator" style={{ marginTop: 24 }} />;
 
   if (!loading && posts.length === 0) {
     return (

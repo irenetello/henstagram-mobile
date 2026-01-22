@@ -24,7 +24,8 @@ describe("mapPostDoc", () => {
       username: undefined,
       userEmail: undefined,
       storagePath: undefined,
-      likesCount: 0, // ✅ ahora forma parte del modelo
+      likesCount: 0,
+      commentsCount: 0,
     });
   });
 });

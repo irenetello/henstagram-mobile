@@ -1,15 +1,13 @@
-// ProfileScreen.styles.ts
 import { StyleSheet, Dimensions } from "react-native";
 
 const GAP = 2;
 export const COLS = 3;
 const W = Dimensions.get("window").width;
 const TILE = Math.floor((W - GAP * (COLS - 1) - 24) / COLS);
+// 24 = paddingHorizontal 12 + 12
 
 export const styles = StyleSheet.create({
-  logoutText: {
-    fontWeight: "800",
-  },
+  /* ===== GRID ===== */
   list: {
     paddingHorizontal: 12,
     paddingTop: 12,
@@ -17,83 +15,108 @@ export const styles = StyleSheet.create({
   },
   row: {
     gap: GAP,
-    marginBottom: GAP,
   },
   tile: {
     width: TILE,
     height: TILE,
-    borderRadius: 10,
-    overflow: "hidden",
-    backgroundColor: "#111",
+    marginBottom: GAP,
+    backgroundColor: "#eee",
   },
   img: {
     width: "100%",
     height: "100%",
   },
-  captionWrap: {
-    display: "flex",
-    flexDirection: "row",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+
+  /* ===== HEADER ===== */
+  logoutText: {
+    color: "#000",
+    fontWeight: "600",
+    paddingRight: 12,
   },
-  displayName: {
-    color: "black",
-    fontWeight: "700",
-    fontSize: 14,
-    marginBottom: 4,
-    marginRight: 6,
-  },
-  captionText: {
-    color: "black",
-    fontSize: 14,
-    opacity: 0.92,
-  },
-  // ✅ modal detalle
+
+  /* ===== MODAL DETAIL ===== */
   detailWrap: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: "#fff",
   },
   detailHeader: {
-    paddingHorizontal: 12,
-    paddingVertical: 12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
   },
   detailTitle: {
+    fontSize: 16,
+    fontWeight: "600",
     flex: 1,
     textAlign: "center",
-    fontWeight: "800",
+    marginHorizontal: 8,
   },
   detailImage: {
     width: "100%",
     aspectRatio: 1,
-    backgroundColor: "#111",
+    backgroundColor: "#000",
   },
 
-  // ✅ action sheet
+  /* ===== CAPTION ===== */
+  captionWrap: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+  },
+  displayName: {
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  captionText: {
+    fontSize: 14,
+    lineHeight: 18,
+  },
+
+  /* ===== COMMENTS INPUT ===== */
+  commentInputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
+    backgroundColor: "#fff",
+  },
+  commentInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginRight: 8,
+    fontSize: 14,
+  },
+
+  /* ===== ACTION SHEET ===== */
   sheetBackdrop: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.35)",
+    backgroundColor: "rgba(0,0,0,0.4)",
     justifyContent: "flex-end",
   },
   sheet: {
-    backgroundColor: "white",
-    padding: 12,
-    borderTopLeftRadius: 14,
-    borderTopRightRadius: 14,
-  },
-  sheetBtn: {
-    paddingVertical: 12,
+    backgroundColor: "#fff",
+    padding: 16,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
   },
   sheetDelete: {
     color: "red",
-    fontWeight: "800",
-    fontSize: 16,
+    fontWeight: "600",
+    paddingVertical: 12,
+    textAlign: "center",
   },
   sheetCancel: {
-    fontWeight: "700",
-    fontSize: 16,
+    fontWeight: "600",
+    paddingVertical: 12,
+    textAlign: "center",
   },
 });

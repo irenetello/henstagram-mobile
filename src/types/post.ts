@@ -7,5 +7,6 @@ export type Post = {
   caption: string; // texto del post
   likesCount?: number; // número de likes
   storagePath?: string; // opcional pero MUY útil: posts/{uid}/{file}
+  commentsCount?: number; // número de comentarios
   createdAt: any; // serverTimestamp
 };

@@ -1,0 +1,85 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function myEmail() {
+      return request.auth.token.email;
+    }
+
+    function isAllowed() {
+      return signedIn()
+        && myEmail() != null
+        && exists(/databases/$(database)/documents/allowedEmails/$(myEmail()))
+        && get(/databases/$(database)/documents/allowedEmails/$(myEmail())).data.enabled == true;
+    }
+
+    // Whitelist: cada usuario solo puede leer SU doc (su email)
+    match /allowedEmails/{email} {
+      allow read: if signedIn() && email == myEmail();
+      allow write: if false;
+    }
+
+    // Posts
+    match /posts/{postId} {
+      allow read: if isAllowed();
+
+      // CREATE: solo permitido y el post es suyo
+      // (Opcional pero recomendado: fuerza contadores iniciales si los usas)
+      allow create: if isAllowed()
+        && request.resource.data.userId == request.auth.uid
+        // Si vas a usar commentsCount/likesCount, recomiendo exigir que nazcan bien:
+        && (!('commentsCount' in request.resource.data) || request.resource.data.commentsCount == 0)
+        && (!('likesCount' in request.resource.data) || request.resource.data.likesCount == 0);
+
+      // UPDATE/DELETE: solo dueño del post, PERO:
+      // Pro: bloqueamos que el cliente pueda tocar contadores.
+      allow update: if isAllowed()
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == resource.data.userId
+        // Si el campo existe, no puede cambiar desde el cliente:
+        && (!('commentsCount' in resource.data) || request.resource.data.commentsCount == resource.data.commentsCount)
+        && (!('likesCount' in resource.data) || request.resource.data.likesCount == resource.data.likesCount);
+
+      allow delete: if isAllowed()
+        && resource.data.userId == request.auth.uid;
+
+      // ✅ Likes subcollection
+      match /likes/{userId} {
+        allow read: if isAllowed();
+        allow create: if isAllowed() && request.auth.uid == userId;
+        allow delete: if isAllowed() && request.auth.uid == userId;
+        allow update: if false;
+      }
+
+      // ✅ Comments subcollection
+      match /comments/{commentId} {
+        allow read: if isAllowed();
+
+        // crear: permitido + el comment debe ser suyo + texto válido
+        allow create: if isAllowed()
+          && request.resource.data.userId == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 300;
+
+        // borrar: solo autor del comentario
+        allow delete: if isAllowed()
+          && resource.data.userId == request.auth.uid;
+
+        // sin edits (por simplicidad y para evitar dramas)
+        allow update: if false;
+      }
+    }
+
+    // Users
+    match /users/{uid} {
+      allow read: if isAllowed();
+      allow create, update: if isAllowed() && request.auth.uid == uid;
+      allow delete: if false;
+    }
+  }
+}

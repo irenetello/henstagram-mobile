@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
-type TabKey = "feed" | "create" | "challenges" | "profile";
+type TabKey = "feed" | "create" | "challenges" | "ourHistory" | "profile";
 
 type Props = {
   activeTab: TabKey;
@@ -28,6 +28,10 @@ export function BottomTabBar({ activeTab, onTabPress }: Props) {
           name={activeTab === "challenges" ? "trophy" : "trophy-outline"}
           size={26}
         />
+      </Pressable>
+
+      <Pressable style={styles.item} onPress={() => onTabPress("ourHistory")}>
+        <Ionicons name={activeTab === "ourHistory" ? "time" : "time-outline"} size={24} />
       </Pressable>
 
       <Pressable style={styles.item} onPress={() => onTabPress("profile")}>

@@ -10,10 +10,11 @@ import ProfileScreen from "./ProfileScreen";
 import { BottomTabBar } from "@/src/components/BottomTabBar";
 import ChallengesScreen from "./challenges";
 import { useCreateDraftStore } from "@/src/store/createDraftStore";
+import OurHistoryScreen from "./OurHistory";
 
-type TabKey = "feed" | "create" | "challenges" | "profile";
+type TabKey = "feed" | "create" | "challenges" | "ourHistory" | "profile";
 
-const TAB_ORDER: TabKey[] = ["feed", "create", "challenges", "profile"];
+const TAB_ORDER: TabKey[] = ["feed", "create", "challenges", "ourHistory", "profile"];
 
 export default function TabsLayout() {
   const pagerRef = useRef<PagerView>(null);
@@ -98,6 +99,11 @@ export default function TabsLayout() {
         <View key="challenges" style={styles.page}>
           <ChallengesScreen />
         </View>
+
+        <View key="ourHistory" style={styles.page}>
+          <OurHistoryScreen />
+        </View>
+
         <View key="profile" style={styles.page}>
           <ProfileScreen />
         </View>

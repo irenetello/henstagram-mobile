@@ -1,0 +1,45 @@
+{
+  "cli": {
+    "version": ">= 16.28.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyD_Hn8yYJeo9JVDt0qGNqmyIO-nJ7382nc",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "henstagram-mobile.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "henstagram-mobile",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "henstagram-mobile.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "207202080097",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:207202080097:web:763fd64033d16080442120"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyD_Hn8yYJeo9JVDt0qGNqmyIO-nJ7382nc",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "henstagram-mobile.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "henstagram-mobile",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "henstagram-mobile.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "207202080097",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:207202080097:web:763fd64033d16080442120"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyD_Hn8yYJeo9JVDt0qGNqmyIO-nJ7382nc",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "henstagram-mobile.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "henstagram-mobile",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "henstagram-mobile.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "207202080097",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:207202080097:web:763fd64033d16080442120"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

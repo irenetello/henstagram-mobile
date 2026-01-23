@@ -19,6 +19,16 @@ export const unstable_settings = {
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
+import { View, Text } from "react-native";
+
+export default function RootLayout() {
+  return (
+    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+      <Text>HENSTAGRAM VIVO ✅</Text>
+    </View>
+  );
+}
+/*
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: SpaceMonoFont,
@@ -43,7 +53,7 @@ export default function RootLayout() {
     </SafeAreaProvider>
   );
 }
-
+*/
 function AuthGate() {
   const router = useRouter();
   const segments = useSegments() as string[];

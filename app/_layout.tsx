@@ -46,13 +46,13 @@ export default function RootLayout() {
 
 function AuthGate() {
   const router = useRouter();
-  const segments = useSegments();
+  const segments = useSegments() as string[];
   const { user, initializing } = useAuth();
 
   useEffect(() => {
     if (initializing) return;
 
-    const inLogin = segments[0] === "login";
+    const inLogin = segments.includes("login");
     const inTabs = segments[0] === "(tabs)";
 
     // No session → fuera de tabs, a login

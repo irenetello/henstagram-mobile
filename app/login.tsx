@@ -29,8 +29,6 @@ export default function LoginScreen() {
         await signOut(auth); // <- IMPORTANT: si no está invitado, fuera sesión
         return;
       }
-
-      router.replace("/(tabs)/feed");
     } catch (e: any) {
       const code = e?.code;
 

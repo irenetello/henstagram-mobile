@@ -3,14 +3,14 @@ import { Alert, Keyboard, StyleSheet, View } from "react-native";
 import PagerView from "react-native-pager-view";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import CreateScreen from "./Create";
-import FeedScreen from "./Feed";
-import ProfileScreen from "./ProfileScreen";
+import CreateScreen from "./create";
+import FeedScreen from "./feed";
+import ProfileScreen from "./profileScreen";
 
 import { BottomTabBar } from "@/src/components/BottomTabBar";
 import ChallengesScreen from "./challenges";
 import { useCreateDraftStore } from "@/src/store/createDraftStore";
-import OurHistoryScreen from "./OurHistory";
+import OurHistoryScreen from "./ourHistory";
 
 type TabKey = "feed" | "create" | "challenges" | "ourHistory" | "profile";
 

@@ -70,7 +70,7 @@ export default function CreateScreen() {
     try {
       await publishPost(imageUri!, caption.trim());
       resetDraft();
-      router.replace("/(tabs)/Feed");
+      router.replace("/(tabs)/feed");
     } catch (e) {
       console.error("UPLOAD ERROR:", e);
       Alert.alert("Error", "Failed to upload post");

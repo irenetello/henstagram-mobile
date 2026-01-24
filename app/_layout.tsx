@@ -18,7 +18,7 @@ export const unstable_settings = {
 };
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
-
+/*
 import { View, Text } from "react-native";
 
 export default function RootLayout() {
@@ -28,7 +28,7 @@ export default function RootLayout() {
     </View>
   );
 }
-/*
+*/
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: SpaceMonoFont,
@@ -53,7 +53,7 @@ export default function RootLayout() {
     </SafeAreaProvider>
   );
 }
-*/
+
 function AuthGate() {
   const router = useRouter();
   const segments = useSegments() as string[];
@@ -73,7 +73,7 @@ function AuthGate() {
 
     // Con session → si estás en login, te saco a la app
     if (user && inLogin) {
-      router.replace("/(tabs)/Feed");
+      router.replace("/(tabs)/feed");
       return;
     }
 

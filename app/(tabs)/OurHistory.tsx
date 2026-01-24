@@ -1,10 +1,18 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Animated,
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { Image } from "expo-image";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 
 import { Screen } from "@/src/components/Screen/Screen";
 import { db } from "@/src/lib/firebase";
+import ConfettiCannon from "react-native-confetti-cannon";
 
 type OurHistoryEvent = {
   id: string;
@@ -24,6 +32,7 @@ export default function OurHistoryScreen() {
   const [events, setEvents] = useState<OurHistoryEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
     const q = query(collection(db, "ourHistoryEvents"), orderBy("order", "asc"));
@@ -79,6 +88,8 @@ export default function OurHistoryScreen() {
         data={data}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.container}
+        onEndReached={() => setShowConfetti(true)}
+        onEndReachedThreshold={0.2}
         ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
         ListEmptyComponent={
           <View style={styles.center}>
@@ -91,6 +102,14 @@ export default function OurHistoryScreen() {
         ListFooterComponent={<FinalMessage />}
         renderItem={({ item, index }) => <TimelineCard item={item} index={index} />}
       />
+      {showConfetti ? (
+        <ConfettiCannon
+          count={120}
+          origin={{ x: 0, y: 0 }}
+          fadeOut
+          onAnimationEnd={() => setShowConfetti(false)}
+        />
+      ) : null}
     </Screen>
   );
 }
@@ -98,14 +117,28 @@ export default function OurHistoryScreen() {
 function TimelineCard({ item, index }: { item: OurHistoryEvent; index: number }) {
   const side = index % 2 === 0 ? "left" : "right";
 
+  const opacity = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(8)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(opacity, { toValue: 1, duration: 250, useNativeDriver: true }),
+      Animated.timing(translateY, { toValue: 0, duration: 250, useNativeDriver: true }),
+    ]).start();
+  }, [opacity, translateY]);
+
   return (
     <View style={styles.cardWrap}>
-      {/* center line */}
       <View style={styles.line} />
-      {/* dot */}
       <View style={styles.dot} />
 
-      <View style={[styles.card, side === "left" ? styles.left : styles.right]}>
+      <Animated.View
+        style={[
+          styles.card,
+          side === "left" ? styles.left : styles.right,
+          { opacity, transform: [{ translateY }] },
+        ]}
+      >
         <Text style={styles.date}>{item.date}</Text>
         <Text style={styles.title}>{item.title}</Text>
         {item.caption ? <Text style={styles.caption}>{item.caption}</Text> : null}
@@ -118,14 +151,22 @@ function TimelineCard({ item, index }: { item: OurHistoryEvent; index: number })
             transition={180}
           />
         ) : null}
-      </View>
+      </Animated.View>
     </View>
   );
 }
 
 function FinalMessage() {
+  const [fired, setFired] = useState(false);
+
   return (
-    <View style={styles.finalWrap}>
+    <View
+      style={styles.finalWrap}
+      onLayout={() => {
+        // se dispara cuando el footer entra en layout (normalmente al llegar al final)
+        if (!fired) setFired(true);
+      }}
+    >
       <Text style={styles.finalTitle}>{FINAL_MESSAGE.title}</Text>
       <Text style={styles.finalBody}>{FINAL_MESSAGE.body}</Text>
     </View>

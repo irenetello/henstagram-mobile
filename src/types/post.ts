@@ -9,4 +9,6 @@ export type Post = {
   storagePath?: string; // opcional pero MUY útil: posts/{uid}/{file}
   commentsCount?: number; // número de comentarios
   createdAt: any; // serverTimestamp
+  challengeId?: string;
+  challengeTitle?: string;
 };

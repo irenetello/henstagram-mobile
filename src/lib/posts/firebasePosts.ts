@@ -10,7 +10,11 @@ async function uriToBlob(uri: string): Promise<Blob> {
   return await response.blob();
 }
 
-export async function publishPost(imageUri: string, caption: string) {
+export async function publishPost(
+  imageUri: string,
+  caption: string,
+  opts?: { challengeId?: string; challengeTitle?: string },
+) {
   const user = auth.currentUser;
   if (!user) throw new Error("User not authenticated");
 
@@ -30,7 +34,9 @@ export async function publishPost(imageUri: string, caption: string) {
     imageUrl,
     caption,
     storagePath,
-    username: profile?.displayName ?? undefined, // 👈 aquí
+    username: profile?.displayName ?? undefined,
     userEmail: user.email ?? undefined,
+    challengeId: opts?.challengeId,
+    challengeTitle: opts?.challengeTitle,
   });
 }

@@ -2,6 +2,7 @@ import { Screen } from "@/src/components/Screen/Screen";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
+import { useLocalSearchParams } from "expo-router";
 
 import {
   ActivityIndicator,
@@ -40,6 +41,16 @@ export default function CreateScreen() {
 
   const [isPublishing, setIsPublishing] = useState(false);
 
+  const challengeId = useCreateDraftStore((s) => s.challengeId);
+  const challengeTitle = useCreateDraftStore((s) => s.challengeTitle);
+
+  /*
+  const challengeId =
+    typeof params.challengeId === "string" ? params.challengeId : undefined;
+
+  const challengeTitle =
+    typeof params.challengeTitle === "string" ? params.challengeTitle : undefined;
+*/
   const canPost = useMemo(() => {
     return !!user && !!imageUri && caption.trim().length > 0 && !isPublishing;
   }, [user, imageUri, caption, isPublishing]);
@@ -68,7 +79,7 @@ export default function CreateScreen() {
 
     setIsPublishing(true);
     try {
-      await publishPost(imageUri!, caption.trim());
+      await publishPost(imageUri!, caption.trim(), { challengeId, challengeTitle });
       resetDraft();
       router.replace("/(tabs)/feed");
     } catch (e) {
@@ -137,7 +148,13 @@ export default function CreateScreen() {
                 </Pressable>
               </View>
             )}
-
+            {challengeId ? (
+              <View style={{ paddingVertical: 8 }}>
+                <Text style={{ fontWeight: "600" }}>
+                  Posting for: {challengeTitle ?? "Challenge"}
+                </Text>
+              </View>
+            ) : null}
             <TextInput
               value={caption}
               editable={!isPublishing}

@@ -18,17 +18,7 @@ export const unstable_settings = {
 };
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
-/*
-import { View, Text } from "react-native";
 
-export default function RootLayout() {
-  return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <Text>HENSTAGRAM VIVO ✅</Text>
-    </View>
-  );
-}
-*/
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: SpaceMonoFont,
@@ -63,22 +53,15 @@ function AuthGate() {
     if (initializing) return;
 
     const inLogin = segments.includes("login");
-    const inTabs = segments[0] === "(tabs)";
 
-    // No session → fuera de tabs, a login
     if (!user && !inLogin) {
       router.replace("/login");
       return;
     }
-
-    // Con session → si estás en login, te saco a la app
     if (user && inLogin) {
       router.replace("/(tabs)/feed");
       return;
     }
-
-    // si no estás en tabs y estás logueada, opcionalmente podrías empujar a tabs:
-    // if (user && !inTabs) router.replace("/(tabs)/feed");
   }, [user, initializing, segments, router]);
 
   return null;
@@ -93,7 +76,8 @@ function RootLayoutNav() {
       <Stack>
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        {/* OJO: si no existe app/modal.tsx, esto sobra (lo retomamos luego) */}
+        <Stack.Screen name="challenge/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="challenge/create" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: "modal" }} />
       </Stack>
     </ThemeProvider>

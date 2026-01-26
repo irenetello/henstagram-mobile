@@ -1,14 +1,28 @@
-import { StyleSheet } from "react-native";
+import { Dimensions, StyleSheet } from "react-native";
+
+export const COLS = 3;
+const GAP = 2;
+const W = Dimensions.get("window").width;
+const TILE = Math.floor((W - GAP * (COLS - 1) - 32) / COLS); // 32 = padding 16 + 16
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
+
+  // Header
+  headerCard: {
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 12,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    marginHorizontal: 16,
+    marginTop: 12,
+    marginBottom: 12,
+    elevation: 2,
   },
+
   title: {
     fontSize: 22,
     fontWeight: "700",
@@ -32,41 +46,74 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "600",
     opacity: 0.9,
+    backgroundColor: "#eee",
   },
   metaText: {
     fontSize: 12,
     opacity: 0.8,
   },
+
+  toggleRow: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 12,
+  },
+  toggleBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: "#eee",
+    alignItems: "center",
+  },
+  toggleBtnActive: {
+    backgroundColor: "#111",
+  },
+  toggleText: {
+    fontWeight: "700",
+    opacity: 0.9,
+  },
+  toggleTextActive: {
+    color: "#fff",
+  },
+
   participateButton: {
     paddingVertical: 12,
     borderRadius: 10,
     alignItems: "center",
     opacity: 0.95,
+    backgroundColor: "#111",
   },
   participateButtonText: {
     fontSize: 14,
     fontWeight: "700",
+    color: "#fff",
   },
-  listContent: {
+
+  // Grid (Profile)
+  gridList: {
     paddingHorizontal: 16,
     paddingBottom: 24,
   },
-  postCard: {
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    opacity: 0.95,
+  row: {
+    gap: GAP,
+    marginBottom: GAP,
   },
-  postUser: {
-    fontWeight: "700",
-    marginBottom: 4,
+  tile: {
+    width: TILE,
+    height: TILE,
+    backgroundColor: "#eee",
   },
-  postCaption: {
-    marginBottom: 6,
+  img: {
+    width: "100%",
+    height: "100%",
   },
-  postMeta: {
-    fontSize: 12,
-    opacity: 0.7,
+
+  // Feed
+  feedList: {
+    paddingHorizontal: 16,
+    paddingBottom: 24,
   },
+
   emptyText: {
     paddingHorizontal: 16,
     paddingTop: 24,

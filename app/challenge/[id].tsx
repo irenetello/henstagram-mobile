@@ -1,11 +1,17 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { ActivityIndicator, FlatList, Pressable, Text, View } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
+import { Image } from "expo-image";
 
 import { Screen } from "@/src/components/Screen/Screen";
-import { useChallengePosts } from "@/src/hooks/useChallengePosts";
-import { styles } from "@/src/screens/Challenges/ChallengeDetail.styles";
+import PostCard from "@/src/components/PostCard";
+import { PostDetailModal } from "@/src/components/PostDetailModal";
+
 import { useChallenge } from "@/src/hooks/useChallenge";
+import { useChallengePosts } from "@/src/hooks/useChallengePosts";
+import { styles, COLS } from "@/src/screens/Challenges/ChallengeDetail.styles";
+
+type ViewMode = "grid" | "feed";
 
 export default function ChallengeDetailScreen() {
   const params = useLocalSearchParams<{ id?: string }>();
@@ -16,11 +22,15 @@ export default function ChallengeDetailScreen() {
     loading: loadingChallenge,
     error: challengeError,
   } = useChallenge(challengeId);
+
   const {
     posts,
     loading: loadingPosts,
     error: postsError,
   } = useChallengePosts(challengeId);
+
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [selectedPost, setSelectedPost] = useState<any>(null);
 
   const loading = loadingChallenge || loadingPosts;
 
@@ -37,7 +47,7 @@ export default function ChallengeDetailScreen() {
       ) : (
         <View style={styles.container}>
           {/* Header */}
-          <View style={styles.header}>
+          <View style={styles.headerCard}>
             <Text style={styles.title}>{challenge.title}</Text>
             <Text style={styles.prompt}>{challenge.prompt}</Text>
 
@@ -56,13 +66,43 @@ export default function ChallengeDetailScreen() {
               ) : null}
             </View>
 
+            <View style={styles.toggleRow}>
+              <Pressable
+                onPress={() => setViewMode("grid")}
+                style={[styles.toggleBtn, viewMode === "grid" && styles.toggleBtnActive]}
+              >
+                <Text
+                  style={[
+                    styles.toggleText,
+                    viewMode === "grid" && styles.toggleTextActive,
+                  ]}
+                >
+                  Grid
+                </Text>
+              </Pressable>
+
+              <Pressable
+                onPress={() => setViewMode("feed")}
+                style={[styles.toggleBtn, viewMode === "feed" && styles.toggleBtnActive]}
+              >
+                <Text
+                  style={[
+                    styles.toggleText,
+                    viewMode === "feed" && styles.toggleTextActive,
+                  ]}
+                >
+                  Feed
+                </Text>
+              </Pressable>
+            </View>
+
             <Pressable
               style={styles.participateButton}
               onPress={() =>
                 router.push({
                   pathname: "/(tabs)/create",
                   params: {
-                    challengeId: challengeId,
+                    challengeId,
                     challengeTitle: challenge.title,
                   },
                 })
@@ -79,27 +119,40 @@ export default function ChallengeDetailScreen() {
             </Text>
           ) : posts.length === 0 ? (
             <Text style={styles.emptyText}>No posts yet. Be the first 😈</Text>
-          ) : (
+          ) : viewMode === "grid" ? (
             <FlatList
+              key="grid"
               data={posts}
               keyExtractor={(item) => item.id}
-              contentContainerStyle={styles.listContent}
+              numColumns={COLS}
+              columnWrapperStyle={styles.row}
+              contentContainerStyle={styles.gridList}
               renderItem={({ item }) => (
-                <View style={styles.postCard}>
-                  <Text style={styles.postUser}>
-                    {item.username ?? item.userEmail ?? "Someone"}
-                  </Text>
-                  <Text style={styles.postCaption}>{item.caption}</Text>
-                  {/* Si ya tienes componente PostItem o PostCard en tu app, cámbialo aquí */}
-                  <Text style={styles.postMeta}>
-                    {item.createdAt?.toDate
-                      ? item.createdAt.toDate().toLocaleString()
-                      : ""}
-                  </Text>
-                </View>
+                <Pressable style={styles.tile} onPress={() => setSelectedPost(item)}>
+                  <Image source={{ uri: item.imageUrl }} style={styles.img} />
+                </Pressable>
+              )}
+            />
+          ) : (
+            <FlatList
+              key="feed"
+              data={posts}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={styles.feedList}
+              renderItem={({ item }) => (
+                <PostCard post={item} onPressImage={() => setSelectedPost(item)} />
               )}
             />
           )}
+
+          {/* Modal (solo ver detalle por ahora) */}
+          <PostDetailModal
+            visible={!!selectedPost}
+            post={selectedPost}
+            onClose={() => setSelectedPost(null)}
+            canManage={false}
+            onDelete={async () => {}}
+          />
         </View>
       )}
     </Screen>

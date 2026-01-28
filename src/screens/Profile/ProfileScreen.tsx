@@ -28,6 +28,7 @@ import { useLikesCount } from "../../hooks/useLikesCount";
 
 import { useComments } from "@/src/hooks/useComments";
 import { addComment, deleteComment } from "@/src/lib/comments/commentApi";
+import { router } from "expo-router";
 
 type LikeRowProps = {
   postId: string;
@@ -158,7 +159,17 @@ export default function ProfileScreen() {
         contentContainerStyle={styles.list}
         renderItem={({ item }) => (
           <Pressable style={styles.tile} onPress={() => setSelected(item)}>
-            <Image source={{ uri: item.imageUrl }} style={styles.img} />
+            <View style={styles.imageWrapGrid}>
+              {item.challengeId ? (
+                <View style={styles.challengePillSmall}>
+                  <Text style={styles.challengePillSmallText} numberOfLines={1}>
+                    🏷️ {item.challengeTitle ?? "Challenge"}
+                  </Text>
+                </View>
+              ) : null}
+
+              <Image source={{ uri: item.imageUrl }} style={styles.img} />
+            </View>
           </Pressable>
         )}
       />
@@ -192,7 +203,25 @@ export default function ProfileScreen() {
 
               {/* IMAGE */}
               {selected && (
-                <Image source={{ uri: selected.imageUrl }} style={styles.detailImage} />
+                <View style={styles.imageWrapDetail}>
+                  {selected.challengeId ? (
+                    <Pressable
+                      style={styles.challengePill}
+                      onPress={() =>
+                        router.push({
+                          pathname: "/challenge/[id]",
+                          params: { id: String(selected.challengeId) },
+                        })
+                      }
+                    >
+                      <Text style={styles.challengePillText} numberOfLines={1}>
+                        🏷️ {selected.challengeTitle ?? "Challenge"}
+                      </Text>
+                    </Pressable>
+                  ) : null}
+
+                  <Image source={{ uri: selected.imageUrl }} style={styles.detailImage} />
+                </View>
               )}
 
               {/* LIKES */}
@@ -200,7 +229,7 @@ export default function ProfileScreen() {
                 <LikeRow
                   postId={selected.id}
                   likesCount={selectedLikesCount}
-                  commentsCount={selected.commentsCount ?? 0}
+                  commentsCount={comments?.length ?? 0}
                 />
               )}
 

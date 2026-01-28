@@ -64,25 +64,25 @@ export const styles = StyleSheet.create({
   },
 
   // ✅ Banner Challenge (Feed principal)
-  challengeBanner: {
-    marginHorizontal: 12,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 10,
-    backgroundColor: "#f2f2f2",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
+  imageWrap: {
+    position: "relative",
   },
+
+  // 🏷️ Pill overlay (Challenge)
   challengePill: {
-    fontSize: 11,
-    fontWeight: "800",
-    letterSpacing: 0.5,
+    position: "absolute",
+    top: 10,
+    left: 10,
+    zIndex: 10,
+
+    backgroundColor: "rgba(0,0,0,0.65)",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
   },
-  challengeTitle: {
-    fontSize: 13,
+  challengePillText: {
+    color: "#fff",
+    fontSize: 12,
     fontWeight: "600",
-    flexShrink: 1,
   },
 });

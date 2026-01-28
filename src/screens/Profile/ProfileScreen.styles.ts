@@ -119,4 +119,52 @@ export const styles = StyleSheet.create({
     paddingVertical: 12,
     textAlign: "center",
   },
+  // ✅ Wrapper para GRID (necesita ocupar todo el tile)
+  imageWrapGrid: {
+    position: "relative",
+    width: "100%",
+    height: "100%",
+  },
+
+  // ✅ Wrapper para MODAL (NO puede tener height 100%)
+  imageWrapDetail: {
+    position: "relative",
+    width: "100%",
+  },
+
+  // Pill grande (modal detalle)
+  challengePill: {
+    position: "absolute",
+    top: 10,
+    left: 10,
+    zIndex: 10,
+    backgroundColor: "rgba(0,0,0,0.65)",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    maxWidth: "90%",
+  },
+  challengePillText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+
+  // Pill pequeña (grid)
+  challengePillSmall: {
+    position: "absolute",
+    top: 6,
+    left: 6,
+    zIndex: 10,
+    backgroundColor: "rgba(0,0,0,0.65)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 999,
+    maxWidth: "92%",
+  },
+  challengePillSmallText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "600",
+  },
 });

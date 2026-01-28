@@ -56,10 +56,6 @@ function PostItem({ item, uid, onDelete }: PostItemProps) {
 
   const likesCount = useLikesCount(item.id);
 
-  // ✅ Esto es lo que necesitas para el banner
-  const hasChallenge = !!item.challengeId;
-  const challengeTitle = item.challengeTitle ?? "Challenge";
-
   return (
     <View style={styles.card}>
       <PostHeader
@@ -67,32 +63,31 @@ function PostItem({ item, uid, onDelete }: PostItemProps) {
         isOwner={isOwner}
         onDelete={async () => onDelete(item)}
       />
+      <View style={styles.imageWrap}>
+        {/* 🏷️ Pill overlay si es challenge */}
+        {item.challengeId ? (
+          <Pressable
+            style={styles.challengePill}
+            onPress={() =>
+              router.push({
+                pathname: "/challenge/[id]",
+                params: { id: String(item.challengeId) },
+              })
+            }
+          >
+            <Text style={styles.challengePillText}>
+              🏷️ {item.challengeTitle ?? "Challenge"}
+            </Text>
+          </Pressable>
+        ) : null}
 
-      {/* ✅ Banner en el FEED principal */}
-      {hasChallenge ? (
-        <Pressable
-          onPress={() =>
-            router.push({
-              pathname: "/challenge/[id]",
-              params: { id: String(item.challengeId) },
-            })
-          }
-          style={styles.challengeBanner}
-        >
-          <Text style={styles.challengePill}>CHALLENGE</Text>
-          <Text style={styles.challengeTitle} numberOfLines={1}>
-            {challengeTitle}
-          </Text>
-        </Pressable>
-      ) : null}
-
-      <Image
-        source={{ uri: item.imageUrl }}
-        style={styles.image}
-        contentFit="cover"
-        transition={150}
-      />
-
+        <Image
+          source={{ uri: item.imageUrl }}
+          style={styles.image}
+          contentFit="cover"
+          transition={150}
+        />
+      </View>
       <LikeRow postId={item.id} likesCount={likesCount} />
 
       {item.caption?.trim() ? (

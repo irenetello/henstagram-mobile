@@ -62,4 +62,25 @@ export const styles = StyleSheet.create({
   secondaryBtnText: { fontWeight: "700" },
 
   disabled: { opacity: 0.6 },
+
+  // Challenge (optional)
+  challengeBanner: {
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "#ccc",
+    borderRadius: 12,
+    padding: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  challengeBannerText: { flex: 1, fontWeight: "700" },
+  challengeRemoveBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "#ccc",
+    backgroundColor: "#fff",
+  },
+  challengeRemoveBtnText: { fontWeight: "800" },
 });

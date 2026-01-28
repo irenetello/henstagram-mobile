@@ -11,6 +11,7 @@ import { BottomTabBar } from "@/src/components/BottomTabBar";
 import ChallengesScreen from "./challenges";
 import { useCreateDraftStore } from "@/src/store/createDraftStore";
 import OurHistoryScreen from "./ourHistory";
+import { onTabRequest } from "@/src/lib/tabs/tabBus";
 
 type TabKey = "feed" | "create" | "challenges" | "ourHistory" | "profile";
 
@@ -26,6 +27,17 @@ export default function TabsLayout() {
   const draftCaption = useCreateDraftStore((s) => s.caption);
   const isCaptionFocused = useCreateDraftStore((s) => s.isCaptionFocused);
   const isDraftDirty = !!draftImage || draftCaption.trim().length > 0;
+
+  const activeTabRef = useRef(activeTab);
+  const isDraftDirtyRef = useRef(isDraftDirty);
+
+  useEffect(() => {
+    activeTabRef.current = activeTab;
+  }, [activeTab]);
+
+  useEffect(() => {
+    isDraftDirtyRef.current = isDraftDirty;
+  }, [isDraftDirty]);
 
   const resetDraft = useCreateDraftStore((s) => s.resetDraft);
   const isSwipeEnabled = !(
@@ -47,6 +59,49 @@ export default function TabsLayout() {
     };
   }, []);
 
+  useEffect(() => {
+    const unsub = onTabRequest((tab) => {
+      const index = TAB_ORDER.indexOf(tab);
+      console.log("TAB BUS ->", tab);
+
+      if (index < 0) return;
+
+      if (
+        activeTabRef.current === "create" &&
+        isDraftDirtyRef.current &&
+        tab !== "create"
+      ) {
+        Keyboard.dismiss();
+        Alert.alert(
+          "Discard draft?",
+          "If you leave, your photo and caption will be cleared.",
+          [
+            { text: "Stay", style: "cancel" },
+            {
+              text: "Discard",
+              style: "destructive",
+              onPress: () => {
+                resetDraft();
+                setActiveIndex(index);
+                requestAnimationFrame(() => {
+                  pagerRef.current?.setPage(index);
+                });
+              },
+            },
+          ],
+        );
+        return;
+      }
+
+      setActiveIndex(index);
+      requestAnimationFrame(() => {
+        pagerRef.current?.setPage(index);
+      });
+    });
+
+    return unsub;
+  }, []);
+
   const goTo = (tab: TabKey) => {
     if (tab === activeTab) return;
 
@@ -66,7 +121,9 @@ export default function TabsLayout() {
               resetDraft();
               const index = TAB_ORDER.indexOf(tab);
               setActiveIndex(index);
-              pagerRef.current?.setPage(index);
+              requestAnimationFrame(() => {
+                pagerRef.current?.setPage(index);
+              });
             },
           },
         ],
@@ -76,7 +133,9 @@ export default function TabsLayout() {
 
     const index = TAB_ORDER.indexOf(tab);
     setActiveIndex(index);
-    pagerRef.current?.setPage(index);
+    requestAnimationFrame(() => {
+      pagerRef.current?.setPage(index);
+    });
   };
 
   return (
@@ -120,7 +179,5 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
   pager: { flex: 1 },
   page: { flex: 1 },
-  safeBottom: {
-    backgroundColor: "#fff",
-  },
+  safeBottom: { backgroundColor: "#fff" },
 });

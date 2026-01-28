@@ -1,8 +1,7 @@
 import { Screen } from "@/src/components/Screen/Screen";
 import * as ImagePicker from "expo-image-picker";
-import { useRouter } from "expo-router";
-import React, { useMemo, useState } from "react";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useMemo, useState } from "react";
 
 import {
   ActivityIndicator,
@@ -39,12 +38,22 @@ export default function CreateScreen() {
   const setCaptionFocused = useCreateDraftStore((s) => s.setCaptionFocused);
   const resetDraft = useCreateDraftStore((s) => s.resetDraft);
 
+  const draftChallengeId = useCreateDraftStore((s) => s.challengeId);
+  const draftChallengeTitle = useCreateDraftStore((s) => s.challengeTitle);
+  const setChallenge = useCreateDraftStore((s) => s.setChallenge);
+
   const [isPublishing, setIsPublishing] = useState(false);
 
   const { challengeId, challengeTitle } = useLocalSearchParams<{
     challengeId?: string;
     challengeTitle?: string;
   }>();
+
+  useEffect(() => {
+    if (challengeId) {
+      setChallenge(String(challengeId), challengeTitle ? String(challengeTitle) : null);
+    }
+  }, [challengeId, challengeTitle, setChallenge]);
 
   const canPost = useMemo(() => {
     return !!user && !!imageUri && caption.trim().length > 0 && !isPublishing;
@@ -73,23 +82,31 @@ export default function CreateScreen() {
     if (!canPost) return;
 
     setIsPublishing(true);
+
+    const activeChallengeId = draftChallengeId;
+    const activeChallengeTitle = draftChallengeTitle;
+
     try {
-      const extra = challengeId ? { challengeId, challengeTitle } : {};
+      const extra = activeChallengeId
+        ? {
+            challengeId: activeChallengeId,
+            challengeTitle: activeChallengeTitle ?? undefined,
+          }
+        : undefined;
+
       await publishPost(imageUri!, caption.trim(), extra);
       resetDraft();
 
-      // Si el post venía de un Challenge, volvemos al detalle del challenge.
-      if (challengeId) {
+      if (activeChallengeId) {
         router.replace({
           pathname: "/challenge/[id]",
-          params: { id: String(challengeId) },
+          params: { id: String(activeChallengeId) },
         });
       } else {
         router.replace("/(tabs)/feed");
       }
     } catch (e: any) {
       console.error("UPLOAD ERROR:", e);
-      // Muestra el mensaje real (p.ej. "You already participated in this challenge")
       Alert.alert("Error", e?.message ?? "Failed to upload post");
       setIsPublishing(false);
     }
@@ -111,6 +128,23 @@ export default function CreateScreen() {
             keyboardShouldPersistTaps="handled"
           >
             <Text style={styles.title}>Create memory ➕</Text>
+
+            {/* Challenge banner (optional) */}
+            {draftChallengeId ? (
+              <View style={styles.challengeBanner}>
+                <Text style={styles.challengeBannerText} numberOfLines={2}>
+                  Posting for: {draftChallengeTitle ?? "Challenge"}
+                </Text>
+
+                <Pressable
+                  onPress={() => setChallenge(null, null)}
+                  disabled={isPublishing}
+                  style={[styles.challengeRemoveBtn, isPublishing && styles.disabled]}
+                >
+                  <Text style={styles.challengeRemoveBtnText}>Remove</Text>
+                </Pressable>
+              </View>
+            ) : null}
 
             <Pressable
               onPress={pickImage}
@@ -154,14 +188,6 @@ export default function CreateScreen() {
                 </Pressable>
               </View>
             )}
-
-            {challengeId ? (
-              <View style={{ paddingVertical: 8 }}>
-                <Text style={{ fontWeight: "600" }}>
-                  Posting for: {challengeTitle ?? "Challenge"}
-                </Text>
-              </View>
-            ) : null}
 
             <TextInput
               value={caption}

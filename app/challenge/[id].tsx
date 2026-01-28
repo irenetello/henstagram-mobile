@@ -13,11 +13,15 @@ import { useChallengePosts } from "@/src/hooks/useChallengePosts";
 import { styles, COLS } from "@/src/screens/Challenges/ChallengeDetail.styles";
 import { deletePost } from "@/src/lib/posts/postApi";
 
+import { useCreateDraftStore } from "@/src/store/createDraftStore";
+import { requestTab } from "@/src/lib/tabs/tabBus";
+
 type ViewMode = "grid" | "feed";
 
 export default function ChallengeDetailScreen() {
   const params = useLocalSearchParams<{ id?: string }>();
   const challengeId = useMemo(() => String(params.id ?? ""), [params.id]);
+  const setChallenge = useCreateDraftStore((s) => s.setChallenge);
 
   const {
     challenge,
@@ -115,12 +119,12 @@ export default function ChallengeDetailScreen() {
                   return;
                 }
 
-                router.push({
-                  pathname: "/(tabs)/create",
-                  params: {
-                    challengeId,
-                    challengeTitle: challenge.title,
-                  },
+                setChallenge(challenge.id, challenge.title);
+
+                requestTab("create");
+
+                requestAnimationFrame(() => {
+                  router.back();
                 });
               }}
               disabled={hasParticipated}

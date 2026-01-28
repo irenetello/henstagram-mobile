@@ -14,7 +14,7 @@ export type Challenge = {
 };
 
 export function useChallenges() {
-  const [items, setItems] = useState<Challenge[]>([]);
+  const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<unknown>(null);
 
@@ -34,7 +34,7 @@ export function useChallenges() {
           id: d.id,
           ...(d.data() as any),
         })) as Challenge[];
-        setItems(list);
+        setChallenges(list);
         setLoading(false);
       },
       (err) => {
@@ -46,5 +46,5 @@ export function useChallenges() {
     return () => unsub();
   }, []);
 
-  return { items, loading, error };
+  return { challenges, loading, error };
 }

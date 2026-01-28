@@ -62,4 +62,27 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     opacity: 0.9,
   },
+
+  // ✅ Banner Challenge (Feed principal)
+  challengeBanner: {
+    marginHorizontal: 12,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 10,
+    backgroundColor: "#f2f2f2",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  challengePill: {
+    fontSize: 11,
+    fontWeight: "800",
+    letterSpacing: 0.5,
+  },
+  challengeTitle: {
+    fontSize: 13,
+    fontWeight: "600",
+    flexShrink: 1,
+  },
 });

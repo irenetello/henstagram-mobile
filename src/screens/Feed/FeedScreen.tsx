@@ -1,5 +1,8 @@
+import React from "react";
 import { FlatList, View, ActivityIndicator, Text, Pressable } from "react-native";
 import { Image } from "expo-image";
+import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
 import { Screen } from "@/src/components/Screen/Screen";
 import { usePosts } from "@/src/hooks/usePosts";
@@ -9,7 +12,6 @@ import { PostHeader } from "@/src/components/PostHeader/PostHeader";
 import { styles } from "@/src/screens/Feed/FeedScreen.styles";
 import { useIsLiked } from "@/src/hooks/useIsLiked";
 import { toggleLike } from "@/src/lib/posts/likeApi";
-import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/src/auth/AuthProvider";
 import { useLikesCount } from "@/src/hooks/useLikesCount";
 
@@ -52,8 +54,11 @@ function PostItem({ item, uid, onDelete }: PostItemProps) {
   const isOwner = uid != null && item.userId === uid;
   const displayName = item.username ?? item.userEmail ?? "Hey Friend";
 
-  // ✅ Hooks aquí dentro: OK
   const likesCount = useLikesCount(item.id);
+
+  // ✅ Esto es lo que necesitas para el banner
+  const hasChallenge = !!item.challengeId;
+  const challengeTitle = item.challengeTitle ?? "Challenge";
 
   return (
     <View style={styles.card}>
@@ -62,6 +67,24 @@ function PostItem({ item, uid, onDelete }: PostItemProps) {
         isOwner={isOwner}
         onDelete={async () => onDelete(item)}
       />
+
+      {/* ✅ Banner en el FEED principal */}
+      {hasChallenge ? (
+        <Pressable
+          onPress={() =>
+            router.push({
+              pathname: "/challenge/[id]",
+              params: { id: String(item.challengeId) },
+            })
+          }
+          style={styles.challengeBanner}
+        >
+          <Text style={styles.challengePill}>CHALLENGE</Text>
+          <Text style={styles.challengeTitle} numberOfLines={1}>
+            {challengeTitle}
+          </Text>
+        </Pressable>
+      ) : null}
 
       <Image
         source={{ uri: item.imageUrl }}
@@ -84,7 +107,6 @@ function PostItem({ item, uid, onDelete }: PostItemProps) {
 
 export default function FeedScreen() {
   const { posts, loading } = usePosts();
-
   const uid = auth.currentUser?.uid ?? null;
 
   const handleDelete = async (post: any) => {
@@ -92,8 +114,9 @@ export default function FeedScreen() {
     console.log("DELETE POST:", post.id);
   };
 
-  if (loading)
+  if (loading) {
     return <ActivityIndicator testID="activity-indicator" style={{ marginTop: 24 }} />;
+  }
 
   if (!loading && posts.length === 0) {
     return (

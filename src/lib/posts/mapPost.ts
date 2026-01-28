@@ -15,5 +15,7 @@ export function mapPostDoc(doc: QueryDocumentSnapshot<DocumentData>): Post {
     userEmail: data.userEmail,
     username: data.username,
     commentsCount: data.commentsCount ?? 0,
+    challengeId: data.challengeId,
+    challengeTitle: data.challengeTitle,
   };
 }

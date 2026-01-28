@@ -41,16 +41,11 @@ export default function CreateScreen() {
 
   const [isPublishing, setIsPublishing] = useState(false);
 
-  const challengeId = useCreateDraftStore((s) => s.challengeId);
-  const challengeTitle = useCreateDraftStore((s) => s.challengeTitle);
+  const { challengeId, challengeTitle } = useLocalSearchParams<{
+    challengeId?: string;
+    challengeTitle?: string;
+  }>();
 
-  /*
-  const challengeId =
-    typeof params.challengeId === "string" ? params.challengeId : undefined;
-
-  const challengeTitle =
-    typeof params.challengeTitle === "string" ? params.challengeTitle : undefined;
-*/
   const canPost = useMemo(() => {
     return !!user && !!imageUri && caption.trim().length > 0 && !isPublishing;
   }, [user, imageUri, caption, isPublishing]);
@@ -79,12 +74,23 @@ export default function CreateScreen() {
 
     setIsPublishing(true);
     try {
-      await publishPost(imageUri!, caption.trim(), { challengeId, challengeTitle });
+      const extra = challengeId ? { challengeId, challengeTitle } : {};
+      await publishPost(imageUri!, caption.trim(), extra);
       resetDraft();
-      router.replace("/(tabs)/feed");
-    } catch (e) {
+
+      // Si el post venía de un Challenge, volvemos al detalle del challenge.
+      if (challengeId) {
+        router.replace({
+          pathname: "/challenge/[id]",
+          params: { id: String(challengeId) },
+        });
+      } else {
+        router.replace("/(tabs)/feed");
+      }
+    } catch (e: any) {
       console.error("UPLOAD ERROR:", e);
-      Alert.alert("Error", "Failed to upload post");
+      // Muestra el mensaje real (p.ej. "You already participated in this challenge")
+      Alert.alert("Error", e?.message ?? "Failed to upload post");
       setIsPublishing(false);
     }
   };
@@ -148,6 +154,7 @@ export default function CreateScreen() {
                 </Pressable>
               </View>
             )}
+
             {challengeId ? (
               <View style={{ paddingVertical: 8 }}>
                 <Text style={{ fontWeight: "600" }}>
@@ -155,6 +162,7 @@ export default function CreateScreen() {
                 </Text>
               </View>
             ) : null}
+
             <TextInput
               value={caption}
               editable={!isPublishing}

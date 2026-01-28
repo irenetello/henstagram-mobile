@@ -1,15 +1,17 @@
 import React, { useMemo, useState } from "react";
-import { ActivityIndicator, FlatList, Pressable, Text, View } from "react-native";
+import { ActivityIndicator, Alert, FlatList, Pressable, Text, View } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { Image } from "expo-image";
 
 import { Screen } from "@/src/components/Screen/Screen";
 import PostCard from "@/src/components/PostCard";
 import { PostDetailModal } from "@/src/components/PostDetailModal";
+import { auth } from "@/src/lib/auth";
 
 import { useChallenge } from "@/src/hooks/useChallenge";
 import { useChallengePosts } from "@/src/hooks/useChallengePosts";
 import { styles, COLS } from "@/src/screens/Challenges/ChallengeDetail.styles";
+import { deletePost } from "@/src/lib/posts/postApi";
 
 type ViewMode = "grid" | "feed";
 
@@ -28,6 +30,12 @@ export default function ChallengeDetailScreen() {
     loading: loadingPosts,
     error: postsError,
   } = useChallengePosts(challengeId);
+
+  const uid = auth.currentUser?.uid ?? null;
+  const hasParticipated = useMemo(() => {
+    if (!uid) return false;
+    return posts.some((p) => p.userId === uid);
+  }, [posts, uid]);
 
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [selectedPost, setSelectedPost] = useState<any>(null);
@@ -97,18 +105,29 @@ export default function ChallengeDetailScreen() {
             </View>
 
             <Pressable
-              style={styles.participateButton}
-              onPress={() =>
+              style={[styles.participateButton, hasParticipated && { opacity: 0.5 }]}
+              onPress={() => {
+                if (hasParticipated) {
+                  Alert.alert(
+                    "Already participated",
+                    "You already participated in this challenge.",
+                  );
+                  return;
+                }
+
                 router.push({
                   pathname: "/(tabs)/create",
                   params: {
                     challengeId,
                     challengeTitle: challenge.title,
                   },
-                })
-              }
+                });
+              }}
+              disabled={hasParticipated}
             >
-              <Text style={styles.participateButtonText}>Participate</Text>
+              <Text style={styles.participateButtonText}>
+                {hasParticipated ? "Already participated" : "Participate"}
+              </Text>
             </Pressable>
           </View>
 
@@ -145,13 +164,18 @@ export default function ChallengeDetailScreen() {
             />
           )}
 
-          {/* Modal (solo ver detalle por ahora) */}
           <PostDetailModal
             visible={!!selectedPost}
             post={selectedPost}
             onClose={() => setSelectedPost(null)}
-            canManage={false}
-            onDelete={async () => {}}
+            canManage={selectedPost?.userId === auth.currentUser?.uid}
+            onDelete={async () => {
+              await deletePost({
+                id: selectedPost.id,
+                storagePath: selectedPost.storagePath,
+              });
+              setSelectedPost(null);
+            }}
           />
         </View>
       )}

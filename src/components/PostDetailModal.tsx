@@ -8,7 +8,7 @@ type Props = {
   onClose: () => void;
   post: Post | null;
   canManage: boolean;
-  onDelete: () => Promise<void>;
+  onDelete: (post: Post) => Promise<void>;
 };
 
 export function PostDetailModal({ visible, onClose, post, canManage, onDelete }: Props) {
@@ -25,7 +25,7 @@ export function PostDetailModal({ visible, onClose, post, canManage, onDelete }:
         style: "destructive",
         onPress: async () => {
           try {
-            await onDelete();
+            await onDelete(post);
             onClose(); // cierra modal tras borrar
           } catch (e: any) {
             Alert.alert("Delete failed", e?.message ?? "Unknown error");

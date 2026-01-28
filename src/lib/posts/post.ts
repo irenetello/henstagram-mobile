@@ -1,7 +1,7 @@
 import { deleteDoc, doc } from "firebase/firestore";
 import { deleteObject, ref } from "firebase/storage";
 import { db, storage } from "@/src/lib/firebase";
-import { Post } from "../types/post";
+import { Post } from "@/src/types/post";
 
 export async function deletePost(post: Post) {
   // 1) borrar archivo

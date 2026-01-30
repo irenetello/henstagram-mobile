@@ -27,11 +27,18 @@ import { getDisplayName } from "@/src/lib/users/displayName";
 type Props = {
   visible: boolean;
   post: Post | null;
+  feedMode?: boolean;
   onClose: () => void;
   onDeletePost?: (post: Post) => Promise<void>;
 };
 
-export function PostDetailModal({ visible, post, onClose, onDeletePost }: Props) {
+export function PostDetailModal({
+  visible,
+  post,
+  feedMode,
+  onClose,
+  onDeletePost,
+}: Props) {
   const { user } = useAuth();
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -156,18 +163,19 @@ export function PostDetailModal({ visible, post, onClose, onDeletePost }: Props)
             </View>
 
             {/* IMAGE */}
-            <View style={styles.imageWrapDetail}>
-              {post.challengeId ? (
-                <Pressable style={styles.challengePill} onPress={openChallenge}>
-                  <Text style={styles.challengePillText} numberOfLines={1}>
-                    🏷️ {post.challengeTitle ?? "Challenge"}
-                  </Text>
-                </Pressable>
-              ) : null}
+            {!feedMode && (
+              <View style={styles.imageWrapDetail}>
+                {post.challengeId ? (
+                  <Pressable style={styles.challengePill} onPress={openChallenge}>
+                    <Text style={styles.challengePillText} numberOfLines={1}>
+                      🏷️ {post.challengeTitle ?? "Challenge"}
+                    </Text>
+                  </Pressable>
+                ) : null}
 
-              <Image source={{ uri: post.imageUrl }} style={styles.detailImage} />
-            </View>
-
+                <Image source={{ uri: post.imageUrl }} style={styles.detailImage} />
+              </View>
+            )}
             {/* LIKES + COMMENTS COUNTS */}
             <View style={styles.socialRow}>
               <Pressable onPress={onToggleLike} hitSlop={10} style={styles.likeBtn}>
@@ -184,7 +192,12 @@ export function PostDetailModal({ visible, post, onClose, onDeletePost }: Props)
               <Text style={[styles.countText, { marginLeft: 8 }]}>{commentsCount}</Text>
             </View>
             {post.caption?.trim() ? (
-              <Text style={styles.captionText}>{post.caption}</Text>
+              <View style={styles.captionView}>
+                <Text style={styles.captionUser}>
+                  {post.username ?? post.userEmail ?? "User"}
+                </Text>
+                <Text style={styles.captionText}>{post.caption}</Text>
+              </View>
             ) : null}
 
             {/* COMMENTS */}

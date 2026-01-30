@@ -27,6 +27,15 @@ export const styles = StyleSheet.create({
   challengePillText: { color: "white", fontWeight: "700" },
 
   socialRow: { flexDirection: "row", alignItems: "center", padding: 16 },
+  captionView: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    marginBottom: 4,
+  },
+  captionUser: { fontSize: 14, lineHeight: 18, fontWeight: "600" },
+
   captionText: {
     paddingHorizontal: 16,
     paddingBottom: 8,

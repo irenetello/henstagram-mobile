@@ -4,7 +4,7 @@ import { useLocalSearchParams, router } from "expo-router";
 import { Image } from "expo-image";
 
 import { Screen } from "@/src/components/Screen/Screen";
-import PostCard from "@/src/components/PostCard";
+import PostCard from "@/src/components/PostCard/PostCard";
 import { PostDetailModal } from "@/src/components/PostDetailModal/PostDetailModal";
 import { auth } from "@/src/lib/auth";
 
@@ -15,6 +15,7 @@ import { deletePost } from "@/src/lib/posts/postApi";
 
 import { useCreateDraftStore } from "@/src/store/createDraftStore";
 import { requestTab } from "@/src/lib/tabs/tabBus";
+import type { Post } from "@/src/types/post";
 
 type ViewMode = "grid" | "feed";
 
@@ -36,15 +37,21 @@ export default function ChallengeDetailScreen() {
   } = useChallengePosts(challengeId);
 
   const uid = auth.currentUser?.uid ?? null;
+
   const hasParticipated = useMemo(() => {
     if (!uid) return false;
     return posts.some((p) => p.userId === uid);
   }, [posts, uid]);
 
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
-  const [selectedPost, setSelectedPost] = useState<any>(null);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [feedMode, setFeedMode] = useState(false);
 
   const loading = loadingChallenge || loadingPosts;
+
+  const handleDelete = async (post: Post) => {
+    await deletePost({ id: post.id, storagePath: post.storagePath });
+  };
 
   return (
     <Screen title={challenge?.title ?? "Challenge"}>
@@ -77,7 +84,6 @@ export default function ChallengeDetailScreen() {
                 </Text>
               ) : null}
             </View>
-
             <View style={styles.toggleRow}>
               <Pressable
                 onPress={() => setViewMode("grid")}
@@ -107,7 +113,6 @@ export default function ChallengeDetailScreen() {
                 </Text>
               </Pressable>
             </View>
-
             <Pressable
               style={[styles.participateButton, hasParticipated && { opacity: 0.5 }]}
               onPress={() => {
@@ -118,11 +123,8 @@ export default function ChallengeDetailScreen() {
                   );
                   return;
                 }
-
                 setChallenge(challenge.id, challenge.title);
-
                 requestTab("create");
-
                 requestAnimationFrame(() => {
                   router.back();
                 });
@@ -151,7 +153,13 @@ export default function ChallengeDetailScreen() {
               columnWrapperStyle={styles.row}
               contentContainerStyle={styles.gridList}
               renderItem={({ item }) => (
-                <Pressable style={styles.tile} onPress={() => setSelectedPost(item)}>
+                <Pressable
+                  style={styles.tile}
+                  onPress={() => {
+                    setFeedMode(false);
+                    setSelectedPost(item);
+                  }}
+                >
                   <Image source={{ uri: item.imageUrl }} style={styles.img} />
                 </Pressable>
               )}
@@ -163,23 +171,27 @@ export default function ChallengeDetailScreen() {
               keyExtractor={(item) => item.id}
               contentContainerStyle={styles.feedList}
               renderItem={({ item }) => (
-                <PostCard post={item} onPressImage={() => setSelectedPost(item)} />
+                <PostCard
+                  post={item as Post}
+                  currentUid={uid}
+                  onOpen={(p) => {
+                    setFeedMode(true);
+                    setSelectedPost(p);
+                  }}
+                  onDelete={handleDelete}
+                />
               )}
             />
           )}
-
           <PostDetailModal
             visible={!!selectedPost}
             post={selectedPost}
             onClose={() => setSelectedPost(null)}
-            canManage={selectedPost?.userId === auth.currentUser?.uid}
-            onDelete={async () => {
-              await deletePost({
-                id: selectedPost.id,
-                storagePath: selectedPost.storagePath,
-              });
+            onDeletePost={async (p) => {
+              await handleDelete(p);
               setSelectedPost(null);
             }}
+            feedMode={feedMode}
           />
         </View>
       )}

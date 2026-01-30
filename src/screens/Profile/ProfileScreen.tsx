@@ -71,6 +71,7 @@ export default function ProfileScreen() {
         onDeletePost={async (p) => {
           await deletePost({ id: p.id, storagePath: p.storagePath });
         }}
+        feedMode={false}
       />
     </Screen>
   );

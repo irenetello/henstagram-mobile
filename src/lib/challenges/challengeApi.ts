@@ -7,32 +7,41 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  Timestamp,
+  updateDoc,
   where,
 } from "firebase/firestore";
+
 import { db } from "@/src/lib/firebase";
 import type { Challenge } from "@/src/types/challenge";
+import { mapChallenge } from "@/src/lib/challenges/challengeModel";
 
 export function subscribeActiveChallenges(cb: (items: Challenge[]) => void) {
   const q = query(
     collection(db, "challenges"),
-    where("status", "==", "active"),
-    orderBy("endAt", "asc"),
+    where("isDeleted", "==", false),
+    where("startAt", "!=", null),
+    orderBy("startAt", "desc"),
   );
 
-  return onSnapshot(q, (snap) => {
-    const items: Challenge[] = snap.docs.map((d) => ({
-      id: d.id,
-      ...(d.data() as Omit<Challenge, "id">),
-    }));
-    cb(items);
-  });
+  return onSnapshot(
+    q,
+    (snap) => {
+      const items = snap.docs.map((d) => mapChallenge(d.id, d.data()));
+      cb(items);
+    },
+    (err) => {
+      console.log("🔥 subscribeActiveChallenges error:", err);
+      cb([]);
+    },
+  );
 }
 
 export async function getChallengeById(id: string): Promise<Challenge | null> {
   const ref = doc(db, "challenges", id);
   const snap = await getDoc(ref);
   if (!snap.exists()) return null;
-  return { id: snap.id, ...(snap.data() as Omit<Challenge, "id">) };
+  return mapChallenge(snap.id, snap.data());
 }
 
 export async function createChallenge(input: {
@@ -40,17 +49,54 @@ export async function createChallenge(input: {
   prompt: string;
   createdByUid: string;
   createdByName?: string;
-  startAt: any; // Date o Timestamp (usamos Date aquí)
-  endAt: any; // Date
+  coverImageUrl?: string | null;
 }) {
   await addDoc(collection(db, "challenges"), {
     title: input.title,
     prompt: input.prompt,
     createdByUid: input.createdByUid,
     createdByName: input.createdByName ?? null,
-    startAt: input.startAt,
-    endAt: input.endAt,
-    status: "active",
+    coverImageUrl: input.coverImageUrl ?? null,
+
     createdAt: serverTimestamp(),
+
+    // Draft by default
+    startAt: null,
+    endAt: null,
+
+    // Soft delete
+    isDeleted: false,
+    deletedAt: null,
+    deletedByUid: null,
+  });
+}
+
+export async function activateChallenge(input: {
+  challengeId: string;
+  durationMs: number | null; // null => no limit
+}) {
+  const ref = doc(db, "challenges", input.challengeId);
+
+  const endAt =
+    input.durationMs == null
+      ? null
+      : Timestamp.fromMillis(Date.now() + Math.max(0, input.durationMs));
+
+  await updateDoc(ref, {
+    startAt: serverTimestamp(),
+    endAt,
+  });
+}
+
+export async function softDeleteChallenge(input: {
+  challengeId: string;
+  deletedByUid: string;
+}) {
+  const ref = doc(db, "challenges", input.challengeId);
+
+  await updateDoc(ref, {
+    isDeleted: true,
+    deletedAt: serverTimestamp(),
+    deletedByUid: input.deletedByUid,
   });
 }

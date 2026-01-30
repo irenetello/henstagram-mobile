@@ -12,7 +12,6 @@ export default function CreateChallengeScreen() {
 
   const [title, setTitle] = useState("");
   const [prompt, setPrompt] = useState("");
-  const [days, setDays] = useState("7");
   const [saving, setSaving] = useState(false);
 
   const canCreate = useMemo(() => {
@@ -22,10 +21,6 @@ export default function CreateChallengeScreen() {
   const onCreate = async () => {
     if (!canCreate || !user) return;
 
-    const nDays = Math.max(1, Math.min(30, Number(days || "7")));
-    const now = new Date();
-    const end = new Date(now.getTime() + nDays * 24 * 60 * 60 * 1000);
-
     setSaving(true);
     try {
       await createChallenge({
@@ -33,8 +28,6 @@ export default function CreateChallengeScreen() {
         prompt: prompt.trim(),
         createdByUid: user.uid,
         createdByName: user.email ?? undefined,
-        startAt: now,
-        endAt: end,
       });
 
       Alert.alert("Done ✅", "Challenge created.");
@@ -68,14 +61,9 @@ export default function CreateChallengeScreen() {
           style={{ borderWidth: 1, borderRadius: 12, padding: 12, minHeight: 80 }}
         />
 
-        <Text style={{ fontWeight: "800" }}>Duration (days, 1–30)</Text>
-        <TextInput
-          value={days}
-          onChangeText={setDays}
-          keyboardType="number-pad"
-          editable={!saving}
-          style={{ borderWidth: 1, borderRadius: 12, padding: 12, width: 140 }}
-        />
+        <Text style={{ color: "#666" }}>
+          This creates a draft. An admin can later activate it (set start/end).
+        </Text>
 
         <Pressable
           onPress={onCreate}

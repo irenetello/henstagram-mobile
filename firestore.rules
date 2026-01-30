@@ -17,10 +17,61 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/allowedEmails/$(myEmail())).data.enabled == true;
     }
 
+    function isAdmin() {
+      return isAllowed()
+        && exists(/databases/$(database)/documents/admins/$(myEmail()))
+        && get(/databases/$(database)/documents/admins/$(myEmail())).data.enabled == true;
+    }
+
     // Whitelist: cada usuario solo puede leer SU doc (su email)
     match /allowedEmails/{email} {
       allow read: if signedIn() && email == myEmail();
       allow write: if false;
+    }
+
+    // Admins (mirror of allowedEmails: doc id = email)
+    match /admins/{email} {
+      allow read: if signedIn() && email == myEmail();
+      allow write: if false;
+    }
+
+    // Our History timeline (solo lectura)
+    match /ourHistoryEvents/{eventId} {
+      allow read: if isAllowed();
+      allow write: if false;
+    }
+
+    // Challenges
+    match /challenges/{challengeId} {
+      // Users: only scheduled & not deleted. Admins: everything.
+      allow read: if isAdmin()
+        || (
+          isAllowed()
+          && resource.data.deletedAt == null
+          && resource.data.startAt != null
+        );
+
+      // Create: allowed users can create drafts, but enforce basic validation.
+      allow create: if isAllowed()
+        && request.resource.data.createdByUid == request.auth.uid
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 60
+        && request.resource.data.prompt is string
+        && request.resource.data.prompt.size() > 0
+        && request.resource.data.prompt.size() <= 200
+        // DRAFT by default
+        && request.resource.data.startAt == null
+        && request.resource.data.endAt == null
+        && request.resource.data.deletedAt == null;
+
+      // Update: admin-only (activate / end / soft delete / metadata)
+      allow update: if isAdmin()
+        // Prevent changing ownership
+        && request.resource.data.createdByUid == resource.data.createdByUid;
+
+      // No hard delete from client
+      allow delete: if false;
     }
 
     // Posts

@@ -1,17 +1,7 @@
 import { useEffect, useState } from "react";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "@/src/lib/firebase";
-
-export type Challenge = {
-  id: string;
-  title: string;
-  prompt: string;
-  status: "active" | "ended";
-  startAt?: any;
-  endAt?: any;
-  createdByUid?: string;
-  createdAt?: any;
-};
+import { Challenge } from "../types/challenge";
 
 export function useChallenge(challengeId: string) {
   const [challenge, setChallenge] = useState<Challenge | null>(null);

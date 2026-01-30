@@ -62,8 +62,6 @@ export const styles = StyleSheet.create({
   secondaryBtnText: { fontWeight: "700" },
 
   disabled: { opacity: 0.6 },
-
-  // Challenge (optional)
   challengeBanner: {
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: "#ccc",
@@ -83,4 +81,12 @@ export const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   challengeRemoveBtnText: { fontWeight: "800" },
+  pickRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+
+  pickBtnHalf: {
+    flex: 1,
+  },
 });

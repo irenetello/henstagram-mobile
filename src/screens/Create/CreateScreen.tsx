@@ -78,14 +78,26 @@ export default function CreateScreen() {
     if (!result.canceled) setImageUri(result.assets[0].uri);
   };
 
+  const takePhoto = async () => {
+    if (isPublishing) return;
+    const perm = await ImagePicker.requestCameraPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert("Permission needed", "We need access to your camera to take a photo.");
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      quality: 0.9,
+      allowsEditing: true,
+      aspect: [1, 1],
+    });
+    if (!result.canceled) setImageUri(result.assets[0].uri);
+  };
+
   const publish = async () => {
     if (!canPost) return;
-
     setIsPublishing(true);
-
     const activeChallengeId = draftChallengeId;
     const activeChallengeTitle = draftChallengeTitle;
-
     try {
       const extra = activeChallengeId
         ? {
@@ -135,7 +147,6 @@ export default function CreateScreen() {
                 <Text style={styles.challengeBannerText} numberOfLines={2}>
                   Posting for: {draftChallengeTitle ?? "Challenge"}
                 </Text>
-
                 <Pressable
                   onPress={() => setChallenge(null, null)}
                   disabled={isPublishing}
@@ -145,17 +156,34 @@ export default function CreateScreen() {
                 </Pressable>
               </View>
             ) : null}
-
-            <Pressable
-              onPress={pickImage}
-              disabled={isPublishing}
-              style={[styles.pickBtn, isPublishing && styles.disabled]}
-            >
-              <Text style={styles.pickBtnText}>
-                {imageUri ? "Change photo" : "Pick a photo"}
-              </Text>
-            </Pressable>
-
+            {!imageUri ? (
+              <View style={styles.pickRow}>
+                <Pressable
+                  onPress={takePhoto}
+                  disabled={isPublishing}
+                  style={[
+                    styles.pickBtn,
+                    styles.pickBtnHalf,
+                    isPublishing && styles.disabled,
+                  ]}
+                >
+                  <Text style={styles.pickBtnText}> Camera</Text>
+                </Pressable>
+                <Pressable
+                  onPress={pickImage}
+                  disabled={isPublishing}
+                  style={[
+                    styles.pickBtn,
+                    styles.pickBtnHalf,
+                    isPublishing && styles.disabled,
+                  ]}
+                >
+                  <Text style={styles.pickBtnText}>
+                    {imageUri ? "Change" : "Gallery"}
+                  </Text>
+                </Pressable>
+              </View>
+            ) : null}
             {imageUri && (
               <View style={styles.previewWrap}>
                 <Image source={{ uri: imageUri }} style={styles.preview} />
@@ -168,7 +196,6 @@ export default function CreateScreen() {
                 )}
               </View>
             )}
-
             {imageUri && (
               <View style={styles.photoActions}>
                 <Pressable
@@ -178,17 +205,22 @@ export default function CreateScreen() {
                 >
                   <Text style={styles.secondaryBtnText}>Remove</Text>
                 </Pressable>
-
+                <Pressable
+                  onPress={takePhoto}
+                  disabled={isPublishing}
+                  style={[styles.secondaryBtn, isPublishing && styles.disabled]}
+                >
+                  <Text style={styles.secondaryBtnText}>Retake</Text>
+                </Pressable>
                 <Pressable
                   onPress={pickImage}
                   disabled={isPublishing}
                   style={[styles.secondaryBtn, isPublishing && styles.disabled]}
                 >
-                  <Text style={styles.secondaryBtnText}>Choose another</Text>
+                  <Text style={styles.secondaryBtnText}>Gallery</Text>
                 </Pressable>
               </View>
             )}
-
             <TextInput
               value={caption}
               editable={!isPublishing}
@@ -199,11 +231,9 @@ export default function CreateScreen() {
               style={[styles.input, isPublishing && styles.inputDisabled]}
               multiline
             />
-
             <Text style={styles.counter}>
               {caption.length} / {MAX_CHARS}
             </Text>
-
             <Pressable
               onPress={publish}
               disabled={!canPost}

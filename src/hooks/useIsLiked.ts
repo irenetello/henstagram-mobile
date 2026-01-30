@@ -9,6 +9,12 @@ export function useIsLiked(postId: string) {
   useEffect(() => {
     if (initializing) return;
 
+    // ✅ Si no hay postId (modal abierto sin post), no subscribas a nada
+    if (!postId) {
+      setLiked(false);
+      return;
+    }
+
     if (!user) {
       setLiked(false);
       return;

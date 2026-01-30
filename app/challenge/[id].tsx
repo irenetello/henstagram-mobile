@@ -5,7 +5,7 @@ import { Image } from "expo-image";
 
 import { Screen } from "@/src/components/Screen/Screen";
 import PostCard from "@/src/components/PostCard";
-import { PostDetailModal } from "@/src/components/PostDetailModal";
+import { PostDetailModal } from "@/src/components/PostDetailModal/PostDetailModal";
 import { auth } from "@/src/lib/auth";
 
 import { useChallenge } from "@/src/hooks/useChallenge";

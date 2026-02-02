@@ -13,8 +13,10 @@ type ChallengeItemProps = {
   isAdmin: boolean;
   isDraft: boolean;
   isEnded: boolean;
+  isActive?: boolean;
   onActivate: (challenge: Challenge) => void;
   onDelete: (challenge: Challenge) => void;
+  onEndNow: (challenge: Challenge) => void;
 };
 
 export function ChallengeItem({
@@ -23,8 +25,10 @@ export function ChallengeItem({
   isAdmin,
   isDraft,
   isEnded,
+  isActive,
   onActivate,
   onDelete,
+  onEndNow,
 }: ChallengeItemProps) {
   const countdown = useCountdown(item.endAt);
 
@@ -82,6 +86,14 @@ export function ChallengeItem({
             >
               <Text style={[styles.actionText, styles.deleteText]}>Delete</Text>
             </Pressable>
+            {isActive ? (
+              <Pressable
+                onPress={() => onEndNow(item)}
+                style={[styles.actionButton, styles.deleteButton]}
+              >
+                <Text style={styles.endText}>End now</Text>
+              </Pressable>
+            ) : null}
           </View>
         </View>
       ) : null}

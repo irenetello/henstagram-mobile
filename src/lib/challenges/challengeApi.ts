@@ -50,6 +50,8 @@ export async function createChallenge(input: {
   createdByUid: string;
   createdByName?: string;
   coverImageUrl?: string | null;
+  startAt?: Timestamp | null;
+  endAt?: Timestamp | null;
 }) {
   await addDoc(collection(db, "challenges"), {
     title: input.title,
@@ -57,12 +59,9 @@ export async function createChallenge(input: {
     createdByUid: input.createdByUid,
     createdByName: input.createdByName ?? null,
     coverImageUrl: input.coverImageUrl ?? null,
-
+    startAt: input.startAt ?? null,
+    endAt: input.endAt ?? null,
     createdAt: serverTimestamp(),
-
-    // Draft by default
-    startAt: null,
-    endAt: null,
 
     // Soft delete
     isDeleted: false,
@@ -98,5 +97,12 @@ export async function softDeleteChallenge(input: {
     isDeleted: true,
     deletedAt: serverTimestamp(),
     deletedByUid: input.deletedByUid,
+  });
+}
+
+export async function endChallengeNow(input: { challengeId: string }) {
+  const ref = doc(db, "challenges", input.challengeId);
+  await updateDoc(ref, {
+    endAt: serverTimestamp(),
   });
 }

@@ -1,10 +1,20 @@
 import React, { useMemo, useState } from "react";
-import { ActivityIndicator, Alert, Pressable, Text, TextInput, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Platform,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { useRouter } from "expo-router";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { Screen } from "@/src/components/Screen/Screen";
 import { useAuth } from "@/src/auth/AuthProvider";
 import { createChallenge } from "@/src/lib/challenges/challengeApi";
+import { Timestamp } from "firebase/firestore";
 
 export default function CreateChallengeScreen() {
   const router = useRouter();
@@ -12,7 +22,14 @@ export default function CreateChallengeScreen() {
 
   const [title, setTitle] = useState("");
   const [prompt, setPrompt] = useState("");
+  const [startAt, setStartAt] = useState<Date | null>(null);
+  const [endAt, setEndAt] = useState<Date | null>(null);
   const [saving, setSaving] = useState(false);
+
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showStartTimePicker, setShowStartTimePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [showEndTimePicker, setShowEndTimePicker] = useState(false);
 
   const canCreate = useMemo(() => {
     return !!user && title.trim().length >= 3 && prompt.trim().length >= 5 && !saving;
@@ -28,6 +45,8 @@ export default function CreateChallengeScreen() {
         prompt: prompt.trim(),
         createdByUid: user.uid,
         createdByName: user.email ?? undefined,
+        startAt: startAt ? Timestamp.fromDate(startAt) : null,
+        endAt: endAt ? Timestamp.fromDate(endAt) : null,
       });
 
       Alert.alert("Done ✅", "Challenge created.");
@@ -60,6 +79,110 @@ export default function CreateChallengeScreen() {
           multiline
           style={{ borderWidth: 1, borderRadius: 12, padding: 12, minHeight: 80 }}
         />
+
+        <Text style={{ fontWeight: "800", marginTop: 8 }}>
+          Start Date & Time (optional)
+        </Text>
+        <Pressable
+          onPress={() => setShowStartDatePicker(true)}
+          disabled={saving}
+          style={{
+            borderWidth: 1,
+            borderRadius: 12,
+            padding: 12,
+            backgroundColor: "#f9f9f9",
+          }}
+        >
+          <Text style={{ color: startAt ? "#000" : "#999" }}>
+            {startAt ? startAt.toLocaleString() : "Select start date & time"}
+          </Text>
+        </Pressable>
+        {startAt && (
+          <Pressable onPress={() => setStartAt(null)} style={{ alignSelf: "flex-start" }}>
+            <Text style={{ color: "#666", fontSize: 12 }}>Clear</Text>
+          </Pressable>
+        )}
+
+        {showStartDatePicker && (
+          <DateTimePicker
+            value={startAt || new Date()}
+            mode="date"
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+            onChange={(event, selectedDate) => {
+              if (Platform.OS !== "ios") {
+                setShowStartDatePicker(false);
+                setShowStartTimePicker(true);
+              }
+              if (selectedDate) setStartAt(selectedDate);
+            }}
+          />
+        )}
+
+        {showStartTimePicker && (
+          <DateTimePicker
+            value={startAt || new Date()}
+            mode="time"
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+            onChange={(event, selectedDate) => {
+              if (Platform.OS !== "ios") {
+                setShowStartTimePicker(false);
+              }
+              if (selectedDate) setStartAt(selectedDate);
+            }}
+          />
+        )}
+
+        <Text style={{ fontWeight: "800", marginTop: 8 }}>
+          End Date & Time (optional)
+        </Text>
+        <Pressable
+          onPress={() => setShowEndDatePicker(true)}
+          disabled={saving}
+          style={{
+            borderWidth: 1,
+            borderRadius: 12,
+            padding: 12,
+            backgroundColor: "#f9f9f9",
+          }}
+        >
+          <Text style={{ color: endAt ? "#000" : "#999" }}>
+            {endAt ? endAt.toLocaleString() : "Select end date & time"}
+          </Text>
+        </Pressable>
+        {endAt && (
+          <Pressable onPress={() => setEndAt(null)} style={{ alignSelf: "flex-start" }}>
+            <Text style={{ color: "#666", fontSize: 12 }}>Clear</Text>
+          </Pressable>
+        )}
+
+        {showEndDatePicker && (
+          <DateTimePicker
+            value={endAt || new Date()}
+            mode="date"
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+            onChange={(event, selectedDate) => {
+              if (Platform.OS !== "ios") {
+                setShowEndDatePicker(false);
+                setShowEndTimePicker(true);
+              }
+              if (selectedDate) setEndAt(selectedDate);
+            }}
+          />
+        )}
+
+        {showEndTimePicker && (
+          <DateTimePicker
+            value={endAt || new Date()}
+            mode="time"
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+            onChange={(event, selectedDate) => {
+              if (Platform.OS !== "ios") {
+                setShowEndTimePicker(false);
+              }
+              if (selectedDate) setEndAt(selectedDate);
+            }}
+          />
+        )}
 
         <Text style={{ color: "#666" }}>
           This creates a draft. An admin can later activate it (set start/end).

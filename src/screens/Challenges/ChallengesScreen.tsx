@@ -20,6 +20,7 @@ import { getChallengeStatus } from "@/src/lib/challenges/challengeModel";
 import {
   activateChallenge,
   softDeleteChallenge,
+  endChallengeNow,
 } from "@/src/lib/challenges/challengeApi";
 import { useAuth } from "@/src/auth/AuthProvider";
 import type { Challenge } from "@/src/types/challenge";
@@ -123,6 +124,27 @@ export default function ChallengesScreen() {
       },
     ]);
   };
+  const onEndNow = (challenge: Challenge) => {
+    Alert.alert(
+      "End challenge now?",
+      "This will end the challenge immediately. Existing posts will remain.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "End now",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await endChallengeNow({ challengeId: challenge.id });
+            } catch (e) {
+              console.error(e);
+              Alert.alert("Error", "Could not end challenge");
+            }
+          },
+        },
+      ],
+    );
+  };
 
   return (
     <Screen
@@ -146,34 +168,46 @@ export default function ChallengesScreen() {
       }
     >
       {isAdmin && showAdminMode ? (
-        <View style={styles.filterTabs}>
+        <>
           <Pressable
-            onPress={() => setAdminFilter("all")}
-            style={[styles.filterTab, adminFilter === "all" && styles.filterTabActive]}
+            style={styles.createButton}
+            onPress={() => router.push("/challenge/create")}
           >
-            <Text
+            <Text style={styles.createButtonText}>➕ New Challenge</Text>
+          </Pressable>
+
+          <View style={styles.filterTabs}>
+            <Pressable
+              onPress={() => setAdminFilter("all")}
+              style={[styles.filterTab, adminFilter === "all" && styles.filterTabActive]}
+            >
+              <Text
+                style={[
+                  styles.filterTabText,
+                  adminFilter === "all" && styles.filterTabTextActive,
+                ]}
+              >
+                All
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setAdminFilter("drafts")}
               style={[
-                styles.filterTabText,
-                adminFilter === "all" && styles.filterTabTextActive,
+                styles.filterTab,
+                adminFilter === "drafts" && styles.filterTabActive,
               ]}
             >
-              All
-            </Text>
-          </Pressable>
-          <Pressable
-            onPress={() => setAdminFilter("drafts")}
-            style={[styles.filterTab, adminFilter === "drafts" && styles.filterTabActive]}
-          >
-            <Text
-              style={[
-                styles.filterTabText,
-                adminFilter === "drafts" && styles.filterTabTextActive,
-              ]}
-            >
-              Drafts
-            </Text>
-          </Pressable>
-        </View>
+              <Text
+                style={[
+                  styles.filterTabText,
+                  adminFilter === "drafts" && styles.filterTabTextActive,
+                ]}
+              >
+                Drafts
+              </Text>
+            </Pressable>
+          </View>
+        </>
       ) : null}
 
       <FlatList
@@ -181,8 +215,10 @@ export default function ChallengesScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         renderItem={({ item, index }) => {
-          const isDraft = getChallengeStatus(item) === "DRAFT";
-          const isEnded = getChallengeStatus(item) === "ENDED";
+          const status = getChallengeStatus(item);
+          const isDraft = status === "DRAFT";
+          const isEnded = status === "ENDED";
+          const isActive = status === "ACTIVE";
 
           return (
             <ChallengeItem
@@ -191,7 +227,9 @@ export default function ChallengesScreen() {
               isAdmin={isAdmin && showAdminMode}
               isDraft={isDraft}
               isEnded={isEnded}
+              isActive={isActive}
               onActivate={onActivate}
+              onEndNow={onEndNow}
               onDelete={onDelete}
             />
           );

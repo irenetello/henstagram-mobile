@@ -94,6 +94,26 @@ export const styles = StyleSheet.create({
     color: "#b00020",
   },
 
+  endText: {
+    color: "#6575AC",
+  },
+
+  createButton: {
+    marginHorizontal: 16,
+    marginTop: 12,
+    marginBottom: 8,
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: "#6575AC",
+    alignItems: "center",
+  },
+
+  createButtonText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 15,
+  },
+
   filterTabs: {
     flexDirection: "row",
     paddingHorizontal: 16,

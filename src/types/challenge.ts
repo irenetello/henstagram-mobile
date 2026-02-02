@@ -24,7 +24,7 @@ export type Challenge = {
   // Soft delete metadata
   deletedAt?: Timestamp | null;
   deletedByUid?: string | null;
-
+  status?: ChallengeDerivedStatus;
   // Optional
   coverImageUrl?: string | null;
 };

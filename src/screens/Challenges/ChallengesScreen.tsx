@@ -1,12 +1,22 @@
-import React, { useMemo } from "react";
-import { ActivityIndicator, Alert, FlatList, Pressable, Text, View } from "react-native";
+import React, { useMemo, useState } from "react";
+import {
+  ActionSheetIOS,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Modal,
+  Platform,
+  Pressable,
+  Text,
+  View,
+} from "react-native";
 import { router } from "expo-router";
 
 import { Screen } from "@/src/components/Screen/Screen";
 import { useChallengesUser } from "@/src/hooks/useChallengesUser";
 import { useChallengesAdmin } from "@/src/hooks/useChallengesAdmin";
 import { useIsAdmin } from "@/src/hooks/useIsAdmin";
-import { getChallengeStatus, formatMaybeDate } from "@/src/lib/challenges/challengeModel";
+import { getChallengeStatus } from "@/src/lib/challenges/challengeModel";
 import {
   activateChallenge,
   softDeleteChallenge,
@@ -14,6 +24,7 @@ import {
 import { useAuth } from "@/src/auth/AuthProvider";
 import type { Challenge } from "@/src/types/challenge";
 import { styles } from "./ChallengesScreen.styles";
+import { ChallengeItem } from "./ChallengeItem";
 
 export default function ChallengesScreen() {
   const { user } = useAuth();
@@ -25,6 +36,26 @@ export default function ChallengesScreen() {
 
   const title = useMemo(() => (isAdmin ? "Challenges (Admin)" : "Challenges"), [isAdmin]);
 
+  const [activateOpen, setActivateOpen] = useState(false);
+  const [activateTarget, setActivateTarget] = useState<Challenge | null>(null);
+
+  const activateOptions = [
+    { label: "No limit", durationMs: null as number | null },
+    { label: "1 hour", durationMs: 60 * 60 * 1000 },
+    { label: "3 hours", durationMs: 3 * 60 * 60 * 1000 },
+    { label: "24 hours", durationMs: 24 * 60 * 60 * 1000 },
+    { label: "7 days", durationMs: 7 * 24 * 60 * 60 * 1000 },
+  ];
+
+  const activateWith = async (challenge: Challenge, durationMs: number | null) => {
+    try {
+      await activateChallenge({ challengeId: challenge.id, durationMs });
+    } catch (e) {
+      console.error(e);
+      Alert.alert("Error", "Could not activate challenge");
+    }
+  };
+
   if (loading || adminLoading) {
     return (
       <Screen title={title}>
@@ -34,85 +65,30 @@ export default function ChallengesScreen() {
   }
 
   const onActivate = (challenge: Challenge) => {
-    Alert.alert(
-      "Activate challenge?",
-      "Pick a duration (or no limit). This sets startAt = now.",
-      [
-        { text: "Cancel", style: "cancel" },
+    if (Platform.OS === "ios") {
+      ActionSheetIOS.showActionSheetWithOptions(
         {
-          text: "No limit",
-          onPress: async () => {
-            try {
-              await activateChallenge({ challengeId: challenge.id, durationMs: null });
-            } catch (e) {
-              console.error(e);
-              Alert.alert("Error", "Could not activate challenge");
-            }
-          },
+          title: "Activate challenge?",
+          message: "Pick a duration (or no limit).",
+          options: ["Cancel", ...activateOptions.map((o) => o.label)],
+          cancelButtonIndex: 0,
         },
-        {
-          text: "1 hour",
-          onPress: async () => {
-            try {
-              await activateChallenge({
-                challengeId: challenge.id,
-                durationMs: 60 * 60 * 1000,
-              });
-            } catch (e) {
-              console.error(e);
-              Alert.alert("Error", "Could not activate challenge");
-            }
-          },
+        (buttonIndex) => {
+          if (buttonIndex === 0) return;
+          const selected = activateOptions[buttonIndex - 1];
+          if (selected) activateWith(challenge, selected.durationMs);
         },
-        {
-          text: "3 hours",
-          onPress: async () => {
-            try {
-              await activateChallenge({
-                challengeId: challenge.id,
-                durationMs: 3 * 60 * 60 * 1000,
-              });
-            } catch (e) {
-              console.error(e);
-              Alert.alert("Error", "Could not activate challenge");
-            }
-          },
-        },
-        {
-          text: "24 hours",
-          onPress: async () => {
-            try {
-              await activateChallenge({
-                challengeId: challenge.id,
-                durationMs: 24 * 60 * 60 * 1000,
-              });
-            } catch (e) {
-              console.error(e);
-              Alert.alert("Error", "Could not activate challenge");
-            }
-          },
-        },
-        {
-          text: "7 days",
-          onPress: async () => {
-            try {
-              await activateChallenge({
-                challengeId: challenge.id,
-                durationMs: 7 * 24 * 60 * 60 * 1000,
-              });
-            } catch (e) {
-              console.error(e);
-              Alert.alert("Error", "Could not activate challenge");
-            }
-          },
-        },
-      ],
-    );
+      );
+      return;
+    }
+
+    setActivateTarget(challenge);
+    setActivateOpen(true);
   };
 
   const onDelete = (challenge: Challenge) => {
     if (!user) return;
-    Alert.alert("Delete challenge?", "This will hide it (soft delete).", [
+    Alert.alert("Delete challenge?", "This action will not delete the challenges posts", [
       { text: "Cancel", style: "cancel" },
       {
         text: "Delete",
@@ -138,56 +114,77 @@ export default function ChallengesScreen() {
         data={challenges}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
-        renderItem={({ item }) => (
-          <Pressable
-            style={styles.card}
-            onPress={() =>
-              router.push({
-                pathname: "/challenge/[id]",
-                params: { id: item.id },
-              })
-            }
-          >
-            <View style={styles.rowBetween}>
-              <Text style={styles.title}>{item.title}</Text>
-              {isAdmin ? (
-                <View style={styles.chip}>
-                  <Text style={styles.chipText}>{getChallengeStatus(item)}</Text>
-                </View>
-              ) : null}
-            </View>
+        renderItem={({ item, index }) => {
+          const isDraft = getChallengeStatus(item) === "DRAFT";
+          const isEnded = getChallengeStatus(item) === "ENDED";
 
-            <Text style={styles.prompt}>{item.prompt}</Text>
-
-            {isAdmin ? (
-              <View style={styles.adminMeta}>
-                <Text style={styles.metaText}>
-                  Start: {formatMaybeDate(item.startAt)}
-                </Text>
-                <Text style={styles.metaText}>End: {formatMaybeDate(item.endAt)}</Text>
-
-                <View style={styles.adminActions}>
-                  {getChallengeStatus(item) === "DRAFT" ? (
-                    <Pressable
-                      style={styles.actionButton}
-                      onPress={() => onActivate(item)}
-                    >
-                      <Text style={styles.actionText}>Activate</Text>
-                    </Pressable>
-                  ) : null}
-
-                  <Pressable
-                    style={[styles.actionButton, styles.deleteButton]}
-                    onPress={() => onDelete(item)}
-                  >
-                    <Text style={[styles.actionText, styles.deleteText]}>Delete</Text>
-                  </Pressable>
-                </View>
-              </View>
-            ) : null}
-          </Pressable>
-        )}
+          return (
+            <ChallengeItem
+              item={item}
+              index={index}
+              isAdmin={isAdmin}
+              isDraft={isDraft}
+              isEnded={isEnded}
+              onActivate={onActivate}
+              onDelete={onDelete}
+            />
+          );
+        }}
       />
+
+      <Modal
+        visible={activateOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setActivateOpen(false)}
+      >
+        <Pressable
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.35)",
+            justifyContent: "flex-end",
+          }}
+          onPress={() => setActivateOpen(false)}
+        >
+          <Pressable
+            style={{
+              backgroundColor: "white",
+              padding: 12,
+              borderTopLeftRadius: 14,
+              borderTopRightRadius: 14,
+            }}
+            onPress={() => null}
+          >
+            <Text style={{ fontWeight: "700", fontSize: 16, marginBottom: 6 }}>
+              Activate challenge?
+            </Text>
+            <Text style={{ opacity: 0.7, marginBottom: 8 }}>
+              Pick a duration (or no limit).
+            </Text>
+
+            {activateOptions.map((o) => (
+              <Pressable
+                key={o.label}
+                style={{ paddingVertical: 12 }}
+                onPress={async () => {
+                  if (!activateTarget) return;
+                  await activateWith(activateTarget, o.durationMs);
+                  setActivateOpen(false);
+                }}
+              >
+                <Text style={{ fontWeight: "600" }}>{o.label}</Text>
+              </Pressable>
+            ))}
+
+            <Pressable
+              style={{ paddingVertical: 12 }}
+              onPress={() => setActivateOpen(false)}
+            >
+              <Text style={{ fontWeight: "600" }}>Cancel</Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </Screen>
   );
 }

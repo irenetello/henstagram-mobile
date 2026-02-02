@@ -48,6 +48,11 @@ export const styles = StyleSheet.create({
     opacity: 0.9,
     backgroundColor: "#eee",
   },
+  countdown: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#666",
+  },
   metaText: {
     fontSize: 12,
     opacity: 0.8,
@@ -66,7 +71,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   toggleBtnActive: {
-    backgroundColor: "#111",
+    backgroundColor: "#6575AC",
   },
   toggleText: {
     fontWeight: "700",
@@ -81,7 +86,7 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     opacity: 0.95,
-    backgroundColor: "#111",
+    backgroundColor: "#6575AC",
   },
   participateButtonText: {
     fontSize: 14,

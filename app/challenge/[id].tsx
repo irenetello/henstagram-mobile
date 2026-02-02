@@ -10,12 +10,14 @@ import { auth } from "@/src/lib/auth";
 
 import { useChallenge } from "@/src/hooks/useChallenge";
 import { useChallengePosts } from "@/src/hooks/useChallengePosts";
+import { useCountdown } from "@/src/hooks/useCountdown";
 import { styles, COLS } from "@/src/screens/Challenges/ChallengeDetail.styles";
 import { deletePost } from "@/src/lib/posts/postApi";
 
 import { useCreateDraftStore } from "@/src/store/createDraftStore";
 import { requestTab } from "@/src/lib/tabs/tabBus";
 import type { Post } from "@/src/types/post";
+import { getChallengeStatus } from "@/src/lib/challenges/challengeModel";
 
 type ViewMode = "grid" | "feed";
 
@@ -46,11 +48,21 @@ export default function ChallengeDetailScreen() {
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [feedMode, setFeedMode] = useState(false);
+  const isEnded = challenge ? getChallengeStatus(challenge) === "ENDED" : false;
+  const countdown = useCountdown(challenge?.endAt);
 
   const loading = loadingChallenge || loadingPosts;
 
   const handleDelete = async (post: Post) => {
     await deletePost({ id: post.id, storagePath: post.storagePath });
+  };
+
+  const isLessThan5Minutes = (countdownText: string): boolean => {
+    if (!countdownText || countdownText === "Ended") return false;
+    const minutes = parseInt(countdownText.match(/(\d+)m/)?.[1] ?? "0", 10);
+    const hasHours = countdownText.includes("h");
+    const hasDays = countdownText.includes("d");
+    return !hasHours && !hasDays && minutes < 5;
   };
 
   return (
@@ -71,16 +83,16 @@ export default function ChallengeDetailScreen() {
             <Text style={styles.prompt}>{challenge.prompt}</Text>
 
             <View style={styles.metaRow}>
-              <Text style={styles.badge}>
-                {challenge.status === "ended" ? "Ended" : "Active"}
-              </Text>
+              <Text style={styles.badge}>{isEnded ? "Ended" : "Active"}</Text>
 
-              {challenge.endAt ? (
-                <Text style={styles.metaText}>
-                  Ends:{" "}
-                  {challenge.endAt.toDate
-                    ? challenge.endAt.toDate().toLocaleDateString()
-                    : ""}
+              {challenge.endAt && countdown ? (
+                <Text
+                  style={[
+                    styles.countdown,
+                    isLessThan5Minutes(countdown) && { color: "red" },
+                  ]}
+                >
+                  ⏰ {countdown} {isLessThan5Minutes(countdown) ? " (ending soon!)" : ""}
                 </Text>
               ) : null}
             </View>
@@ -114,7 +126,10 @@ export default function ChallengeDetailScreen() {
               </Pressable>
             </View>
             <Pressable
-              style={[styles.participateButton, hasParticipated && { opacity: 0.5 }]}
+              style={[
+                styles.participateButton,
+                (hasParticipated || isEnded) && { opacity: 0.5 },
+              ]}
               onPress={() => {
                 if (hasParticipated) {
                   Alert.alert(
@@ -129,10 +144,14 @@ export default function ChallengeDetailScreen() {
                   router.back();
                 });
               }}
-              disabled={hasParticipated}
+              disabled={hasParticipated || isEnded}
             >
               <Text style={styles.participateButtonText}>
-                {hasParticipated ? "Already participated" : "Participate"}
+                {hasParticipated
+                  ? "Already participated"
+                  : isEnded
+                    ? "Challenge Ended"
+                    : "Participate"}
               </Text>
             </Pressable>
           </View>

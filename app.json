@@ -18,16 +18,15 @@
       "expo-router"
     ],
     "splash": {
-      "image": "./assets/images/splash-icon.png",
+      "image": "./assets/images/loading.jpg",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/loading.jpg",
         "backgroundColor": "#ffffff"
       },
       "softwareKeyboardLayoutMode": "resize",

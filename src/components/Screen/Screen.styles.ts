@@ -29,6 +29,8 @@ export const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 18,
     fontWeight: "700",
+    color: "#6575AC",
+    fontVariant: ["small-caps"],
   },
   content: {
     flex: 1,

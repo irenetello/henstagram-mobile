@@ -17,16 +17,16 @@ export default function ProfileScreen() {
   const [selected, setSelected] = useState<Post | null>(null);
 
   const onLogout = () => {
-    Alert.alert("Sign out", "¿Seguro que quieres salir?", [
-      { text: "Cancelar", style: "cancel" },
+    Alert.alert("Sign out", "Are you sure you want to sign out?", [
+      { text: "Cancel", style: "cancel" },
       {
-        text: "Salir",
+        text: "Sign Out",
         style: "destructive",
         onPress: async () => {
           try {
             await signOut(auth);
           } catch (e: any) {
-            Alert.alert("Error", e?.message ?? "No se pudo cerrar sesión");
+            Alert.alert("Error", e?.message ?? "Could not sign out");
           }
         },
       },

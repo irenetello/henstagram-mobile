@@ -27,6 +27,13 @@ export const styles = StyleSheet.create({
     lineHeight: 20,
   },
 
+  countdown: {
+    fontSize: 12,
+    color: "#666",
+    fontWeight: "600",
+    marginTop: 4,
+  },
+
   rowBetween: {
     flexDirection: "row",
     alignItems: "center",

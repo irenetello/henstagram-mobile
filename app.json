@@ -19,7 +19,7 @@
     ],
     "splash": {
       "image": "./assets/images/loading.jpg",
-      "resizeMode": "contain",
+      "resizeMode": "contain"
     },
     "ios": {
       "supportsTablet": true

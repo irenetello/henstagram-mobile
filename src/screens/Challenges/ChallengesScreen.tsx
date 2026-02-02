@@ -32,9 +32,25 @@ export default function ChallengesScreen() {
   const userQuery = useChallengesUser();
   const adminQuery = useChallengesAdmin();
 
-  const { challenges, loading } = isAdmin ? adminQuery : userQuery;
+  const [showAdminMode, setShowAdminMode] = useState(true);
+  const [adminFilter, setAdminFilter] = useState<"all" | "drafts">("all");
 
-  const title = useMemo(() => (isAdmin ? "Challenges (Admin)" : "Challenges"), [isAdmin]);
+  const { challenges: rawChallenges, loading } = isAdmin ? adminQuery : userQuery;
+
+  const challenges = useMemo(() => {
+    if (isAdmin && !showAdminMode) {
+      return rawChallenges.filter((c) => getChallengeStatus(c) !== "DRAFT");
+    }
+    if (isAdmin && showAdminMode && adminFilter === "drafts") {
+      return rawChallenges.filter((c) => getChallengeStatus(c) === "DRAFT");
+    }
+    return rawChallenges;
+  }, [isAdmin, showAdminMode, rawChallenges, adminFilter]);
+
+  const title = useMemo(
+    () => (isAdmin && showAdminMode ? "Challenges (Admin)" : "Challenges"),
+    [isAdmin, showAdminMode],
+  );
 
   const [activateOpen, setActivateOpen] = useState(false);
   const [activateTarget, setActivateTarget] = useState<Challenge | null>(null);
@@ -109,7 +125,57 @@ export default function ChallengesScreen() {
   };
 
   return (
-    <Screen title={title}>
+    <Screen
+      title={title}
+      headerRight={
+        isAdmin ? (
+          <Pressable
+            onPress={() => setShowAdminMode((prev) => !prev)}
+            style={{
+              paddingHorizontal: 4,
+              backgroundColor: "rgb(214, 229, 234)",
+              borderRadius: 8,
+              padding: 4,
+            }}
+          >
+            <Text style={{ fontWeight: "700", fontSize: 16 }}>
+              {showAdminMode ? "👤 User" : "⚙️ Admin"}
+            </Text>
+          </Pressable>
+        ) : undefined
+      }
+    >
+      {isAdmin && showAdminMode ? (
+        <View style={styles.filterTabs}>
+          <Pressable
+            onPress={() => setAdminFilter("all")}
+            style={[styles.filterTab, adminFilter === "all" && styles.filterTabActive]}
+          >
+            <Text
+              style={[
+                styles.filterTabText,
+                adminFilter === "all" && styles.filterTabTextActive,
+              ]}
+            >
+              All
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={() => setAdminFilter("drafts")}
+            style={[styles.filterTab, adminFilter === "drafts" && styles.filterTabActive]}
+          >
+            <Text
+              style={[
+                styles.filterTabText,
+                adminFilter === "drafts" && styles.filterTabTextActive,
+              ]}
+            >
+              Drafts
+            </Text>
+          </Pressable>
+        </View>
+      ) : null}
+
       <FlatList
         data={challenges}
         keyExtractor={(item) => item.id}
@@ -122,7 +188,7 @@ export default function ChallengesScreen() {
             <ChallengeItem
               item={item}
               index={index}
-              isAdmin={isAdmin}
+              isAdmin={isAdmin && showAdminMode}
               isDraft={isDraft}
               isEnded={isEnded}
               onActivate={onActivate}

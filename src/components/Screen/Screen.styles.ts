@@ -27,7 +27,7 @@ export const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     textAlign: "center",
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: "700",
     color: "#6575AC",
     fontVariant: ["small-caps"],

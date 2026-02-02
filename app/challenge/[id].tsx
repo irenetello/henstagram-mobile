@@ -49,6 +49,7 @@ export default function ChallengeDetailScreen() {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [feedMode, setFeedMode] = useState(false);
   const isEnded = challenge ? getChallengeStatus(challenge) === "ENDED" : false;
+  const isDraft = challenge ? getChallengeStatus(challenge) === "DRAFT" : false;
   const countdown = useCountdown(challenge?.endAt);
 
   const loading = loadingChallenge || loadingPosts;
@@ -128,7 +129,7 @@ export default function ChallengeDetailScreen() {
             <Pressable
               style={[
                 styles.participateButton,
-                (hasParticipated || isEnded) && { opacity: 0.5 },
+                (hasParticipated || isEnded || isDraft) && { opacity: 0.5 },
               ]}
               onPress={() => {
                 if (hasParticipated) {
@@ -144,7 +145,7 @@ export default function ChallengeDetailScreen() {
                   router.back();
                 });
               }}
-              disabled={hasParticipated || isEnded}
+              disabled={hasParticipated || isEnded || isDraft}
             >
               <Text style={styles.participateButtonText}>
                 {hasParticipated

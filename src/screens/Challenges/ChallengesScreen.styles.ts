@@ -94,6 +94,35 @@ export const styles = StyleSheet.create({
     color: "#b00020",
   },
 
+  filterTabs: {
+    flexDirection: "row",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    gap: 8,
+  },
+
+  filterTab: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignItems: "center",
+    backgroundColor: "#f0f0f0",
+  },
+
+  filterTabActive: {
+    backgroundColor: "#6575AC",
+  },
+
+  filterTabText: {
+    fontWeight: "600",
+    fontSize: 14,
+    color: "#666",
+  },
+
+  filterTabTextActive: {
+    color: "#fff",
+  },
+
   participateButton: {},
   participateText: {},
 });

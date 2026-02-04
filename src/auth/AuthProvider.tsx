@@ -2,6 +2,10 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from "
 import type { User } from "firebase/auth";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/src/lib/auth";
+import * as Notifications from "expo-notifications";
+import * as Device from "expo-device";
+import { Platform } from "react-native";
+import { addMyExpoPushToken } from "@/src/lib/users/userApi";
 
 type AuthState = {
   user: User | null;
@@ -21,6 +25,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
     return unsub;
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function register() {
+      if (!user) return;
+
+      // En simuladores iOS / emuladores Android no hay push token real
+      if (!Device.isDevice) return;
+
+      // Pedir permisos
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+
+      if (existingStatus !== "granted") {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+
+      if (finalStatus !== "granted") return;
+
+      // Obtener token (Expo push token)
+      const tokenRes = await Notifications.getExpoPushTokenAsync();
+      const token = tokenRes.data;
+
+      if (cancelled) return;
+      await addMyExpoPushToken(token);
+
+      // Android: canal por defecto (recomendado)
+      if (Platform.OS === "android") {
+        await Notifications.setNotificationChannelAsync("default", {
+          name: "default",
+          importance: Notifications.AndroidImportance.DEFAULT,
+        });
+      }
+    }
+
+    register();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   const value = useMemo(() => ({ user, initializing }), [user, initializing]);
 

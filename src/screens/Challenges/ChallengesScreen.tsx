@@ -1,14 +1,11 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
   ActionSheetIOS,
   ActivityIndicator,
-  Alert,
   FlatList,
-  Modal,
   Platform,
   Pressable,
   Text,
-  View,
 } from "react-native";
 import { router } from "expo-router";
 
@@ -16,16 +13,20 @@ import { Screen } from "@/src/components/Screen/Screen";
 import { useChallengesUser } from "@/src/hooks/useChallengesUser";
 import { useChallengesAdmin } from "@/src/hooks/useChallengesAdmin";
 import { useIsAdmin } from "@/src/hooks/useIsAdmin";
-import { getChallengeStatus } from "@/src/lib/challenges/challengeModel";
-import {
-  activateChallenge,
-  softDeleteChallenge,
-  endChallengeNow,
-} from "@/src/lib/challenges/challengeApi";
 import { useAuth } from "@/src/auth/AuthProvider";
 import type { Challenge } from "@/src/types/challenge";
 import { styles } from "./ChallengesScreen.styles";
 import { ChallengeItem } from "./ChallengeItem";
+import { useChallengesFilter } from "../../hooks/useChallengesFilter";
+import {
+  handleActivate,
+  handleDelete,
+  handleEndNow,
+  ACTIVATE_OPTIONS,
+} from "./utils/challengeActions";
+import { FilterTabs } from "../../components/Challenges/FilterTabs";
+import { AdminModeButton } from "../../components/Challenges/AdminModeButton";
+import { ActivateModal } from "../../components/Challenges/ActivateModal";
 
 export default function ChallengesScreen() {
   const { user } = useAuth();
@@ -33,45 +34,26 @@ export default function ChallengesScreen() {
   const userQuery = useChallengesUser();
   const adminQuery = useChallengesAdmin();
 
-  const [showAdminMode, setShowAdminMode] = useState(true);
-  const [adminFilter, setAdminFilter] = useState<"all" | "drafts">("all");
+  const {
+    challenges: rawChallenges,
+    loading,
+    optimisticEndNow,
+  } = isAdmin ? adminQuery : (userQuery as any);
 
-  const { challenges: rawChallenges, loading } = isAdmin ? adminQuery : userQuery;
+  const {
+    challenges,
+    showAdminMode,
+    setShowAdminMode,
+    adminFilter,
+    setAdminFilter,
+    userFilter,
+    setUserFilter,
+  } = useChallengesFilter(rawChallenges, isAdmin);
 
-  const challenges = useMemo(() => {
-    if (isAdmin && !showAdminMode) {
-      return rawChallenges.filter((c) => getChallengeStatus(c) !== "DRAFT");
-    }
-    if (isAdmin && showAdminMode && adminFilter === "drafts") {
-      return rawChallenges.filter((c) => getChallengeStatus(c) === "DRAFT");
-    }
-    return rawChallenges;
-  }, [isAdmin, showAdminMode, rawChallenges, adminFilter]);
-
-  const title = useMemo(
-    () => (isAdmin && showAdminMode ? "Challenges (Admin)" : "Challenges"),
-    [isAdmin, showAdminMode],
-  );
+  const title = isAdmin && showAdminMode ? "Challenges (Admin)" : "Challenges";
 
   const [activateOpen, setActivateOpen] = useState(false);
   const [activateTarget, setActivateTarget] = useState<Challenge | null>(null);
-
-  const activateOptions = [
-    { label: "No limit", durationMs: null as number | null },
-    { label: "1 hour", durationMs: 60 * 60 * 1000 },
-    { label: "3 hours", durationMs: 3 * 60 * 60 * 1000 },
-    { label: "24 hours", durationMs: 24 * 60 * 60 * 1000 },
-    { label: "7 days", durationMs: 7 * 24 * 60 * 60 * 1000 },
-  ];
-
-  const activateWith = async (challenge: Challenge, durationMs: number | null) => {
-    try {
-      await activateChallenge({ challengeId: challenge.id, durationMs });
-    } catch (e) {
-      console.error(e);
-      Alert.alert("Error", "Could not activate challenge");
-    }
-  };
 
   if (loading || adminLoading) {
     return (
@@ -87,13 +69,13 @@ export default function ChallengesScreen() {
         {
           title: "Activate challenge?",
           message: "Pick a duration (or no limit).",
-          options: ["Cancel", ...activateOptions.map((o) => o.label)],
+          options: ["Cancel", ...ACTIVATE_OPTIONS.map((o) => o.label)],
           cancelButtonIndex: 0,
         },
         (buttonIndex) => {
           if (buttonIndex === 0) return;
-          const selected = activateOptions[buttonIndex - 1];
-          if (selected) activateWith(challenge, selected.durationMs);
+          const selected = ACTIVATE_OPTIONS[buttonIndex - 1];
+          if (selected) handleActivate(challenge, selected.durationMs);
         },
       );
       return;
@@ -105,45 +87,13 @@ export default function ChallengesScreen() {
 
   const onDelete = (challenge: Challenge) => {
     if (!user) return;
-    Alert.alert("Delete challenge?", "This action will not delete the challenges posts", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await softDeleteChallenge({
-              challengeId: challenge.id,
-              deletedByUid: user.uid,
-            });
-          } catch (e) {
-            console.error(e);
-            Alert.alert("Error", "Could not delete challenge");
-          }
-        },
-      },
-    ]);
+    handleDelete(challenge, user.uid, (_challengeId) => {
+      // Optionally update UI after delete
+    });
   };
+
   const onEndNow = (challenge: Challenge) => {
-    Alert.alert(
-      "End challenge now?",
-      "This will end the challenge immediately. Existing posts will remain.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "End now",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await endChallengeNow({ challengeId: challenge.id });
-            } catch (e) {
-              console.error(e);
-              Alert.alert("Error", "Could not end challenge");
-            }
-          },
-        },
-      ],
-    );
+    handleEndNow(challenge, optimisticEndNow);
   };
 
   return (
@@ -151,19 +101,10 @@ export default function ChallengesScreen() {
       title={title}
       headerRight={
         isAdmin ? (
-          <Pressable
-            onPress={() => setShowAdminMode((prev) => !prev)}
-            style={{
-              paddingHorizontal: 4,
-              backgroundColor: "rgb(214, 229, 234)",
-              borderRadius: 8,
-              padding: 4,
-            }}
-          >
-            <Text style={{ fontWeight: "700", fontSize: 16 }}>
-              {showAdminMode ? "👤 User" : "⚙️ Admin"}
-            </Text>
-          </Pressable>
+          <AdminModeButton
+            isAdminMode={showAdminMode}
+            onToggle={() => setShowAdminMode(!showAdminMode)}
+          />
         ) : undefined
       }
     >
@@ -176,119 +117,62 @@ export default function ChallengesScreen() {
             <Text style={styles.createButtonText}>➕ New Challenge</Text>
           </Pressable>
 
-          <View style={styles.filterTabs}>
-            <Pressable
-              onPress={() => setAdminFilter("all")}
-              style={[styles.filterTab, adminFilter === "all" && styles.filterTabActive]}
-            >
-              <Text
-                style={[
-                  styles.filterTabText,
-                  adminFilter === "all" && styles.filterTabTextActive,
-                ]}
-              >
-                All
-              </Text>
-            </Pressable>
-            <Pressable
-              onPress={() => setAdminFilter("drafts")}
-              style={[
-                styles.filterTab,
-                adminFilter === "drafts" && styles.filterTabActive,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.filterTabText,
-                  adminFilter === "drafts" && styles.filterTabTextActive,
-                ]}
-              >
-                Drafts
-              </Text>
-            </Pressable>
-          </View>
+          <FilterTabs
+            filters={[
+              { label: "All", value: "all" },
+              { label: "Drafts", value: "drafts" },
+            ]}
+            activeFilter={adminFilter}
+            onFilterChange={(value) => setAdminFilter(value as "all" | "drafts")}
+          />
         </>
+      ) : null}
+
+      {!showAdminMode && isAdmin ? (
+        <FilterTabs
+          filters={[
+            { label: "All", value: "all" },
+            { label: "Active", value: "active" },
+            { label: "Ended", value: "ended" },
+          ]}
+          activeFilter={userFilter}
+          onFilterChange={(value) => setUserFilter(value as "all" | "active" | "ended")}
+        />
       ) : null}
 
       <FlatList
         data={challenges}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) =>
+          `${item.id}-${typeof item?.endAt?.toMillis === "function" ? item.endAt.toMillis() : "noend"}`
+        }
+        extraData={challenges
+          .map(
+            (c: Challenge) =>
+              `${c.id}:${typeof c?.endAt?.toMillis === "function" ? c.endAt.toMillis() : "noend"}`,
+          )
+          .join("|")}
         contentContainerStyle={styles.list}
-        renderItem={({ item, index }) => {
-          const status = getChallengeStatus(item);
-          const isDraft = status === "DRAFT";
-          const isEnded = status === "ENDED";
-          const isActive = status === "ACTIVE";
-
-          return (
-            <ChallengeItem
-              item={item}
-              index={index}
-              isAdmin={isAdmin && showAdminMode}
-              isDraft={isDraft}
-              isEnded={isEnded}
-              isActive={isActive}
-              onActivate={onActivate}
-              onEndNow={onEndNow}
-              onDelete={onDelete}
-            />
-          );
-        }}
+        renderItem={({ item, index }) => (
+          <ChallengeItem
+            item={item}
+            index={index}
+            isAdmin={isAdmin && showAdminMode}
+            onActivate={onActivate}
+            onEndNow={onEndNow}
+            onDelete={onDelete}
+          />
+        )}
       />
 
-      <Modal
+      <ActivateModal
         visible={activateOpen}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setActivateOpen(false)}
-      >
-        <Pressable
-          style={{
-            flex: 1,
-            backgroundColor: "rgba(0,0,0,0.35)",
-            justifyContent: "flex-end",
-          }}
-          onPress={() => setActivateOpen(false)}
-        >
-          <Pressable
-            style={{
-              backgroundColor: "white",
-              padding: 12,
-              borderTopLeftRadius: 14,
-              borderTopRightRadius: 14,
-            }}
-            onPress={() => null}
-          >
-            <Text style={{ fontWeight: "700", fontSize: 16, marginBottom: 6 }}>
-              Activate challenge?
-            </Text>
-            <Text style={{ opacity: 0.7, marginBottom: 8 }}>
-              Pick a duration (or no limit).
-            </Text>
-
-            {activateOptions.map((o) => (
-              <Pressable
-                key={o.label}
-                style={{ paddingVertical: 12 }}
-                onPress={async () => {
-                  if (!activateTarget) return;
-                  await activateWith(activateTarget, o.durationMs);
-                  setActivateOpen(false);
-                }}
-              >
-                <Text style={{ fontWeight: "600" }}>{o.label}</Text>
-              </Pressable>
-            ))}
-
-            <Pressable
-              style={{ paddingVertical: 12 }}
-              onPress={() => setActivateOpen(false)}
-            >
-              <Text style={{ fontWeight: "600" }}>Cancel</Text>
-            </Pressable>
-          </Pressable>
-        </Pressable>
-      </Modal>
+        target={activateTarget}
+        onClose={() => setActivateOpen(false)}
+        onConfirm={(durationMs) => {
+          if (!activateTarget) return Promise.resolve();
+          return handleActivate(activateTarget, durationMs);
+        }}
+      />
     </Screen>
   );
 }

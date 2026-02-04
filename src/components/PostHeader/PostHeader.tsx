@@ -14,16 +14,16 @@ export function PostHeader({ displayName, isOwner, onDelete }: Props) {
 
   const confirmDelete = () => {
     setOpen(false);
-    Alert.alert("Borrar post", "¿Seguro que quieres borrar este post?", [
-      { text: "Cancelar", style: "cancel" },
+    Alert.alert("Delete post", "Are you sure you want to delete this post?", [
+      { text: "Cancel", style: "cancel" },
       {
-        text: "Borrar",
+        text: "Delete",
         style: "destructive",
         onPress: async () => {
           try {
             await onDelete();
           } catch (e: any) {
-            Alert.alert("Error", e?.message ?? "No se pudo borrar");
+            Alert.alert("Error", e?.message ?? "Could not delete post.");
           }
         },
       },
@@ -49,10 +49,10 @@ export function PostHeader({ displayName, isOwner, onDelete }: Props) {
             <Pressable style={styles.sheetBackdrop} onPress={() => setOpen(false)}>
               <Pressable style={styles.sheet}>
                 <Pressable onPress={confirmDelete} style={styles.sheetBtn}>
-                  <Text style={styles.sheetDelete}>Borrar</Text>
+                  <Text style={styles.sheetDelete}>Delete</Text>
                 </Pressable>
                 <Pressable onPress={() => setOpen(false)} style={styles.sheetBtn}>
-                  <Text style={styles.sheetCancel}>Cancelar</Text>
+                  <Text style={styles.sheetCancel}>Cancel</Text>
                 </Pressable>
               </Pressable>
             </Pressable>

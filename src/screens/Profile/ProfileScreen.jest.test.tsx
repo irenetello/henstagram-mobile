@@ -338,7 +338,7 @@ describe("ProfileScreen", () => {
     const menuButton = screen.getByText("ellipsis-horizontal");
     fireEvent.press(menuButton);
 
-    expect(screen.getByText("Borrar")).toBeTruthy();
+    expect(screen.getByText("Delete")).toBeTruthy();
   });
 
   it("shows confirmation alert when delete pressed", () => {
@@ -363,12 +363,12 @@ describe("ProfileScreen", () => {
     const menuButton = screen.getByText("ellipsis-horizontal");
     fireEvent.press(menuButton);
 
-    const deleteButton = screen.getByText("Borrar");
+    const deleteButton = screen.getByText("Delete");
     fireEvent.press(deleteButton);
 
     expect(Alert.alert).toHaveBeenCalledWith(
-      "Borrar post",
-      "¿Seguro que quieres borrar esta foto?",
+      "Delete post",
+      "Are you sure you want to delete this photo?",
       expect.any(Array),
     );
   });

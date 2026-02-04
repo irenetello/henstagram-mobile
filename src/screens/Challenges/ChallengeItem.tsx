@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
 
@@ -11,33 +11,48 @@ type ChallengeItemProps = {
   item: Challenge;
   index: number;
   isAdmin: boolean;
-  isDraft: boolean;
-  isEnded: boolean;
-  isActive?: boolean;
   onActivate: (challenge: Challenge) => void;
   onDelete: (challenge: Challenge) => void;
   onEndNow: (challenge: Challenge) => void;
 };
 
+function formatDateTime(ts: any): string {
+  if (!ts) return "N/A";
+  const d =
+    typeof ts?.toDate === "function" ? ts.toDate() : ts instanceof Date ? ts : null;
+  if (!d) return "N/A";
+  return d.toLocaleString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+function useNowTick(enabled: boolean, ms = 1000) {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    if (!enabled) return;
+    const id = setInterval(() => setNow(new Date()), ms);
+    return () => clearInterval(id);
+  }, [enabled, ms]);
+  return now;
+}
+
 export function ChallengeItem({
   item,
   index,
   isAdmin,
-  isDraft,
-  isEnded,
-  isActive,
   onActivate,
   onDelete,
   onEndNow,
 }: ChallengeItemProps) {
   const countdown = useCountdown(item.endAt);
+  const now = useNowTick(true, 1000);
+  const status = getChallengeStatus(item, now);
+  const isDraft = status === "DRAFT";
+  const isEnded = status === "ENDED";
+  const isActive = status === "ACTIVE";
 
-  let bgColor = "#fff";
-  if (isDraft) {
-    bgColor = "#fff";
-  } else {
-    bgColor = index % 2 === 0 ? "#97A3C6" : "#B7C6D4";
-  }
+  const bgColor = useMemo(() => {
+    if (isDraft) return "#fff";
+    return index % 2 === 0 ? "#97A3C6" : "#B7C6D4";
+  }, [index, isDraft]);
 
   return (
     <Pressable
@@ -53,7 +68,7 @@ export function ChallengeItem({
         <Text style={styles.title}>{item.title}</Text>
 
         <View style={styles.chip}>
-          <Text style={styles.chipText}>{getChallengeStatus(item)}</Text>
+          <Text style={styles.chipText}>{status}</Text>
         </View>
       </View>
 
@@ -65,13 +80,8 @@ export function ChallengeItem({
 
       {isAdmin ? (
         <View style={styles.adminMeta}>
-          <Text style={styles.metaText}>
-            Start:{" "}
-            {item.startAt ? new Date(item.startAt.toDate()).toLocaleDateString() : "N/A"}
-          </Text>
-          <Text style={styles.metaText}>
-            End: {item.endAt ? new Date(item.endAt.toDate()).toLocaleDateString() : "N/A"}
-          </Text>
+          <Text style={styles.metaText}>Start: {formatDateTime(item.startAt)}</Text>
+          <Text style={styles.metaText}>End: {formatDateTime(item.endAt)}</Text>
 
           <View style={styles.adminActions}>
             {isDraft ? (
@@ -86,6 +96,7 @@ export function ChallengeItem({
             >
               <Text style={[styles.actionText, styles.deleteText]}>Delete</Text>
             </Pressable>
+
             {isActive ? (
               <Pressable
                 onPress={() => onEndNow(item)}

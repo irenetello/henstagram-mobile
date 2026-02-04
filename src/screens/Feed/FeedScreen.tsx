@@ -18,7 +18,6 @@ export default function FeedScreen() {
 
   const handleDelete = async (post: Post) => {
     await deletePost(post);
-    console.log("DELETE POST:", post.id);
   };
 
   if (loading) {

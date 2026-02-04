@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { collection, onSnapshot, orderBy, query, where } from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  orderBy,
+  query,
+  where,
+  Timestamp,
+} from "firebase/firestore";
 
 import { db } from "@/src/lib/firebase";
 import type { Challenge } from "@/src/types/challenge";
@@ -9,6 +16,19 @@ export function useChallengesAdmin() {
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<unknown>(null);
+
+  const optimisticEndNow = (challengeId: string) => {
+    setChallenges((prev) =>
+      prev.map((c) =>
+        c.id === challengeId
+          ? {
+              ...c,
+              endAt: Timestamp.now(),
+            }
+          : c,
+      ),
+    );
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -22,8 +42,9 @@ export function useChallengesAdmin() {
     const unsub = onSnapshot(
       q,
       (snap) => {
-        const items = snap.docs.map((d) => mapChallenge(d.id, d.data()));
-        console.log("✅ admin challenges snapshot:", items.length);
+        const items = snap.docs.map((d) =>
+          mapChallenge(d.id, d.data({ serverTimestamps: "estimate" })),
+        );
         setChallenges(items);
         setLoading(false);
       },
@@ -37,5 +58,5 @@ export function useChallengesAdmin() {
     return () => unsub();
   }, []);
 
-  return { challenges, loading, error };
+  return { challenges, loading, error, optimisticEndNow };
 }

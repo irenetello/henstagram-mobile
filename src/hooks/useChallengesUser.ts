@@ -23,8 +23,9 @@ export function useChallengesUser() {
     const unsub = onSnapshot(
       q,
       (snap) => {
-        const items = snap.docs.map((d) => mapChallenge(d.id, d.data()));
-        console.log("✅ user challenges snapshot:", items.length);
+        const items = snap.docs.map((d) =>
+          mapChallenge(d.id, d.data({ serverTimestamps: "estimate" })),
+        );
         setChallenges(items);
         setLoading(false);
       },

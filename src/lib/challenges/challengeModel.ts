@@ -1,7 +1,35 @@
 import type { Challenge, ChallengeDerivedStatus } from "@/src/types/challenge";
+import { Timestamp } from "firebase/firestore";
 
 function asNullable<T>(v: T | undefined): T | null {
   return typeof v === "undefined" ? null : (v as T);
+}
+
+function asTimestamp(v: any): Timestamp | null {
+  if (!v) return null;
+
+  // Timestamp real
+  if (v instanceof Timestamp) return v;
+
+  // Objetos Firestore con toDate (incluye serverTimestamp estimate)
+  if (typeof v?.toDate === "function") {
+    return Timestamp.fromDate(v.toDate());
+  }
+
+  // Objetos Firestore con toMillis
+  if (typeof v?.toMillis === "function") {
+    return Timestamp.fromMillis(v.toMillis());
+  }
+
+  // Formato { seconds, nanoseconds }
+  if (typeof v?.seconds === "number" && typeof v?.nanoseconds === "number") {
+    return new Timestamp(v.seconds, v.nanoseconds);
+  }
+
+  // Date normal
+  if (v instanceof Date) return Timestamp.fromDate(v);
+
+  return null;
 }
 
 /**
@@ -16,15 +44,13 @@ export function mapChallenge(id: string, data: any): Challenge {
     createdByUid: String(data?.createdByUid ?? ""),
     createdByName: data?.createdByName ?? null,
 
-    createdAt: data?.createdAt, // as Timestamp
+    startAt: asTimestamp(data?.startAt),
+    endAt: asTimestamp(data?.endAt),
+    createdAt: asTimestamp(data?.createdAt) ?? Timestamp.now(),
 
-    startAt: data?.startAt ?? null,
-    endAt: data?.endAt ?? null,
-
-    // ✅ si no existe, asumimos false
     isDeleted: data?.isDeleted ?? false,
 
-    deletedAt: data?.deletedAt ?? null,
+    deletedAt: asTimestamp(data?.deletedAt),
     deletedByUid: data?.deletedByUid ?? null,
 
     coverImageUrl: data?.coverImageUrl ?? null,
@@ -56,7 +82,11 @@ export function getChallengeStatus(
 export function formatMaybeDate(v: any): string {
   const ms = toMillis(v);
   if (!ms) return "—";
+
   const d = new Date(ms);
-  // Locale-friendly, short
-  return `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+
+  return `${d.toLocaleDateString()} ${d.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  })}`;
 }

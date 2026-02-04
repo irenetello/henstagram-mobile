@@ -32,7 +32,7 @@ export default function CreateChallengeScreen() {
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
 
   const canCreate = useMemo(() => {
-    return !!user && title.trim().length >= 3 && prompt.trim().length >= 5 && !saving;
+    return !!user && title.trim().length >= 2 && prompt.trim().length >= 2 && !saving;
   }, [user, title, prompt, saving]);
 
   const onCreate = async () => {

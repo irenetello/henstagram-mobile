@@ -62,8 +62,6 @@ export default function TabsLayout() {
   useEffect(() => {
     const unsub = onTabRequest((tab) => {
       const index = TAB_ORDER.indexOf(tab);
-      console.log("TAB BUS ->", tab);
-
       if (index < 0) return;
 
       if (

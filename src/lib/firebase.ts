@@ -10,9 +10,6 @@ const firebaseConfig = {
   messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
-if (!process.env.EXPO_PUBLIC_FIREBASE_API_KEY) {
-  console.log("❌ Missing EXPO_PUBLIC_FIREBASE_API_KEY");
-}
 
 export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 

@@ -88,15 +88,15 @@ export function PostDetailModal({
       });
       setCommentText("");
     } catch (e: any) {
-      Alert.alert("Error", e?.message ?? "No se pudo enviar el comentario.");
+      Alert.alert("Error", e?.message ?? "Could not send comment.");
     }
   };
 
   const confirmDeleteComment = (commentId: string) => {
-    Alert.alert("Borrar comentario", "¿Seguro?", [
-      { text: "Cancelar", style: "cancel" },
+    Alert.alert("Delete comment", "Are you sure?", [
+      { text: "Cancel", style: "cancel" },
       {
-        text: "Borrar",
+        text: "Delete",
         style: "destructive",
         onPress: () => deleteComment({ postId: post.id, commentId }),
       },
@@ -108,10 +108,10 @@ export function PostDetailModal({
 
     setMenuOpen(false);
 
-    Alert.alert("Borrar post", "¿Seguro que quieres borrar esta foto?", [
-      { text: "Cancelar", style: "cancel" },
+    Alert.alert("Delete post", "Are you sure you want to delete this photo?", [
+      { text: "Cancel", style: "cancel" },
       {
-        text: "Borrar",
+        text: "Delete",
         style: "destructive",
         onPress: async () => {
           try {
@@ -259,13 +259,13 @@ export function PostDetailModal({
           <Pressable style={styles.sheetBackdrop} onPress={() => setMenuOpen(false)}>
             <Pressable style={styles.sheet}>
               <Pressable onPress={confirmDeletePost} style={{ paddingVertical: 12 }}>
-                <Text style={styles.sheetDelete}>Borrar</Text>
+                <Text style={styles.sheetDelete}>Delete</Text>
               </Pressable>
               <Pressable
                 onPress={() => setMenuOpen(false)}
                 style={{ paddingVertical: 12 }}
               >
-                <Text style={styles.sheetCancel}>Cancelar</Text>
+                <Text style={styles.sheetCancel}>Cancel</Text>
               </Pressable>
             </Pressable>
           </Pressable>

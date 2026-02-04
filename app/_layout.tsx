@@ -11,6 +11,7 @@ import { useColorScheme } from "@/src/components/useColorScheme";
 import SpaceMonoFont from "../assets/fonts/SpaceMono-Regular.ttf";
 import { AuthProvider, useAuth } from "@/src/auth/AuthProvider";
 import { NotificationTapHandler } from "@/src/notifications/NotificationTapHandler";
+import { ChallengeNotificationScheduler } from "@/src/notifications/ChallengeNotificationScheduler";
 
 export { ErrorBoundary } from "expo-router";
 
@@ -75,6 +76,7 @@ function RootLayoutNav() {
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <AuthGate />
       <NotificationTapHandler />
+      <ChallengeNotificationScheduler />
       <Stack>
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

@@ -74,7 +74,10 @@ console.log("Sending push to tokens...");
         to,
         title: "New challenge 🔥",
         body: title,
-        data: { challengeId },
+        data: { 
+          challengeId,
+          url: `henstagrammobile://challenge/${challengeId}`,
+        },
         sound: "default",
       }))
     );

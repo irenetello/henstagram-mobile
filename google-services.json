@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "207202080097",
+    "project_id": "henstagram-mobile",
+    "storage_bucket": "henstagram-mobile.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:207202080097:android:f651fcd96d03f9d0442120",
+        "android_client_info": {
+          "package_name": "com.irene_tllo.henstagrammobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeMJv6OkcvvzE_D2zGsuRBnxf3QlbdXNU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

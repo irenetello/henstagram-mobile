@@ -22,14 +22,15 @@
     ],
     "splash": {
       "image": "./assets/images/loading.jpg",
-      "resizeMode": "contain"
+        "resizeMode": "cover"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
+        "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/loading.jpg",
+        "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffffff"
       },
       "softwareKeyboardLayoutMode": "resize",

@@ -10,6 +10,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useColorScheme } from "@/src/components/useColorScheme";
 import SpaceMonoFont from "../assets/fonts/SpaceMono-Regular.ttf";
 import { AuthProvider, useAuth } from "@/src/auth/AuthProvider";
+import { NotificationTapHandler } from "@/src/notifications/NotificationTapHandler";
 
 export { ErrorBoundary } from "expo-router";
 
@@ -73,6 +74,7 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <AuthGate />
+      <NotificationTapHandler />
       <Stack>
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

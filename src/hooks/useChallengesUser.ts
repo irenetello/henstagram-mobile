@@ -4,6 +4,7 @@ import { collection, onSnapshot, orderBy, query, where } from "firebase/firestor
 import { db } from "@/src/lib/firebase";
 import type { Challenge } from "@/src/types/challenge";
 import { mapChallenge } from "@/src/lib/challenges/challengeModel";
+import { scheduleChallengeIfNeeded } from "@/src/notifications/scheduleChallengeNotifications";
 
 export function useChallengesUser() {
   const [challenges, setChallenges] = useState<Challenge[]>([]);
@@ -38,6 +39,12 @@ export function useChallengesUser() {
 
     return () => unsub();
   }, []);
+
+  useEffect(() => {
+    challenges.forEach((c) => {
+      scheduleChallengeIfNeeded(c).catch(console.warn);
+    });
+  }, [challenges]);
 
   return { challenges, loading, error };
 }

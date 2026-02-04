@@ -44,8 +44,8 @@ export const onChallengeActivated = onDocumentUpdated(
     const before = event.data?.before.data();
     const after = event.data?.after.data();
     if (!before || !after) return;
-console.log("onChallengeActivated fired", event.params.challengeId);
-console.log("startAt before/after", before.startAt ?? null, after.startAt ?? null);
+    console.log("onChallengeActivated fired", event.params.challengeId);
+    console.log("startAt before/after", before.startAt ?? null, after.startAt ?? null);
 
     const wasDraft = !before.startAt;
     const nowActive = !!after.startAt;
@@ -66,7 +66,7 @@ console.log("startAt before/after", before.startAt ?? null, after.startAt ?? nul
 
     const title = typeof after.title === "string" ? after.title : "A new challenge is live!";
     const challengeId = event.params.challengeId;
-console.log("Sending push to tokens...");
+    console.log("Sending push to tokens...");
 
     // 2) enviar push
     await sendExpoPush(

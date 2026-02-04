@@ -8,24 +8,45 @@ type StoredMap = Record<string, string>;
 
 async function getStored(): Promise<StoredMap> {
   const raw = await AsyncStorage.getItem(KEY);
-  return raw ? (JSON.parse(raw) as StoredMap) : {};
+  return raw ? JSON.parse(raw) : {};
 }
 
 async function saveStored(map: StoredMap) {
   await AsyncStorage.setItem(KEY, JSON.stringify(map));
 }
 
+async function cancelIfExists(challengeId: string, stored: StoredMap) {
+  const existing = stored[challengeId];
+  if (!existing) return;
+
+  try {
+    await Notifications.cancelScheduledNotificationAsync(existing);
+  } catch (e) {
+    console.warn("cancel failed", e);
+  }
+
+  delete stored[challengeId];
+}
+
 export async function scheduleChallengeIfNeeded(challenge: Challenge) {
-  if (!challenge.startAt) return;
+  const stored = await getStored();
+
+  if (!challenge.startAt) {
+    await cancelIfExists(challenge.id, stored);
+    await saveStored(stored);
+    return;
+  }
 
   const startMs = challenge.startAt.toMillis();
   const now = Date.now();
 
-  if (startMs <= now) return;
+  if (startMs <= now) {
+    await cancelIfExists(challenge.id, stored);
+    await saveStored(stored);
+    return;
+  }
 
-  const stored = await getStored();
-
-  if (stored[challenge.id]) return;
+  await cancelIfExists(challenge.id, stored);
 
   const seconds = Math.ceil((startMs - now) / 1000);
 

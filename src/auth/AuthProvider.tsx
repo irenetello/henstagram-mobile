@@ -14,6 +14,15 @@ type AuthState = {
 
 const AuthContext = createContext<AuthState | null>(null);
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [initializing, setInitializing] = useState(true);
@@ -32,10 +41,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async function register() {
       if (!user) return;
 
-      // En simuladores iOS / emuladores Android no hay push token real
       if (!Device.isDevice) return;
 
-      // Pedir permisos
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
 
@@ -46,20 +53,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (finalStatus !== "granted") return;
 
-      // Obtener token (Expo push token)
+      if (Platform.OS === "android") {
+        await Notifications.setNotificationChannelAsync("default", {
+          name: "default",
+          importance: Notifications.AndroidImportance.HIGH,
+        });
+      }
+
       const tokenRes = await Notifications.getExpoPushTokenAsync();
       const token = tokenRes.data;
 
       if (cancelled) return;
-      await addMyExpoPushToken(token);
 
-      // Android: canal por defecto (recomendado)
-      if (Platform.OS === "android") {
-        await Notifications.setNotificationChannelAsync("default", {
-          name: "default",
-          importance: Notifications.AndroidImportance.DEFAULT,
-        });
-      }
+      await addMyExpoPushToken(token);
     }
 
     register();

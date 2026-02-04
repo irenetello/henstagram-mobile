@@ -1,5 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, Animated, FlatList, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Animated,
+  FlatList,
+  Modal,
+  Pressable,
+  Text,
+  View,
+} from "react-native";
 import { Image } from "expo-image";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 
@@ -27,6 +35,7 @@ export default function OurHistoryScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const q = query(collection(db, "ourHistoryEvents"), orderBy("order", "asc"));
@@ -94,7 +103,9 @@ export default function OurHistoryScreen() {
           </View>
         }
         ListFooterComponent={<FinalMessage />}
-        renderItem={({ item, index }) => <TimelineCard item={item} index={index} />}
+        renderItem={({ item, index }) => (
+          <TimelineCard item={item} index={index} onPressImage={setPreviewUrl} />
+        )}
       />
       {showConfetti ? (
         <ConfettiCannon
@@ -104,11 +115,40 @@ export default function OurHistoryScreen() {
           onAnimationEnd={() => setShowConfetti(false)}
         />
       ) : null}
+
+      <Modal visible={!!previewUrl} transparent animationType="fade">
+        <Pressable
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.85)",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+          onPress={() => setPreviewUrl(null)}
+        >
+          {previewUrl ? (
+            <Image
+              source={{ uri: previewUrl }}
+              style={{ width: "92%", height: "70%" }}
+              contentFit="contain"
+              transition={180}
+            />
+          ) : null}
+        </Pressable>
+      </Modal>
     </Screen>
   );
 }
 
-function TimelineCard({ item, index }: { item: OurHistoryEvent; index: number }) {
+function TimelineCard({
+  item,
+  index,
+  onPressImage,
+}: {
+  item: OurHistoryEvent;
+  index: number;
+  onPressImage: (url: string) => void;
+}) {
   const side = index % 2 === 0 ? "left" : "right";
 
   const opacity = useRef(new Animated.Value(0)).current;
@@ -138,12 +178,14 @@ function TimelineCard({ item, index }: { item: OurHistoryEvent; index: number })
         {item.caption ? <Text style={styles.caption}>{item.caption}</Text> : null}
 
         {item.imageUrl ? (
-          <Image
-            source={{ uri: item.imageUrl }}
-            style={styles.image}
-            contentFit="cover"
-            transition={180}
-          />
+          <Pressable onPress={() => onPressImage(item.imageUrl!)}>
+            <Image
+              source={{ uri: item.imageUrl }}
+              style={styles.image}
+              contentFit="cover"
+              transition={180}
+            />
+          </Pressable>
         ) : null}
       </Animated.View>
     </View>
@@ -157,7 +199,6 @@ function FinalMessage() {
     <View
       style={styles.finalWrap}
       onLayout={() => {
-        // se dispara cuando el footer entra en layout (normalmente al llegar al final)
         if (!fired) setFired(true);
       }}
     >

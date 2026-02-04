@@ -18,7 +18,9 @@
     },
     "preview": {
       "distribution": "internal",
-      "buildType": "apk",
+      "android": {
+        "buildType": "apk"
+      },
       "env": {
         "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyD_Hn8yYJeo9JVDt0qGNqmyIO-nJ7382nc",
         "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "henstagram-mobile.firebaseapp.com",

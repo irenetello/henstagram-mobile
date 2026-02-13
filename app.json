@@ -22,13 +22,14 @@
     ],
     "splash": {
       "image": "./assets/images/loading.jpg",
-        "resizeMode": "cover"
+      "resizeMode": "cover"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.irene-tllo.henstagrammobile"
     },
     "android": {
-        "googleServicesFile": "./google-services.json",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffffff"

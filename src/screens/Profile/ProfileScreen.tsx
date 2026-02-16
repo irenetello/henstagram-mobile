@@ -5,7 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { signOut } from "firebase/auth";
 
 import { Screen } from "@/src/components/Screen/Screen";
-import { useMyPosts } from "@/src/hooks/useMyPosts";
+import { useMyPosts } from "@/src/hooks/posts/useMyPosts";
 import { auth } from "@/src/lib/auth";
 import { deletePost } from "@/src/lib/posts/postApi";
 import type { Post } from "@/src/types/post";

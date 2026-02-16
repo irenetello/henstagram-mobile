@@ -4,7 +4,7 @@ import { FlatList, View, ActivityIndicator, Text } from "react-native";
 import { Screen } from "@/src/components/Screen/Screen";
 import PostCard from "@/src/components/PostCard/PostCard";
 import { PostDetailModal } from "@/src/components/PostDetailModal/PostDetailModal";
-import { usePosts } from "@/src/hooks/usePosts";
+import { usePosts } from "@/src/hooks/posts/usePosts";
 import { auth } from "@/src/lib/auth";
 import { deletePost } from "@/src/lib/posts/postApi";
 import { styles } from "@/src/screens/Feed/FeedScreen.styles";

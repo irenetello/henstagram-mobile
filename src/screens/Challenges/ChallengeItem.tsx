@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
 
-import { useCountdown } from "@/src/hooks/useCountdown";
+import { useCountdown } from "@/src/hooks/utils/useCountdown";
 import { getChallengeStatus } from "@/src/lib/challenges/challengeModel";
 import { styles } from "./ChallengesScreen.styles";
 import type { Challenge } from "@/src/types/challenge";

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestore";
-import { db } from "../lib/firebase";
-import type { Post } from "../types/post";
+import { db } from "@/src/lib/firebase";
+import type { Post } from "@/src/types/post";
 import { mapPostDoc } from "@/src/lib/posts/mapPost";
 
 export function usePosts() {

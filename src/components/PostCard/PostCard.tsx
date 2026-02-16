@@ -6,9 +6,9 @@ import { router } from "expo-router";
 
 import type { Post } from "@/src/types/post";
 import { useAuth } from "@/src/auth/AuthProvider";
-import { useIsLiked } from "@/src/hooks/useIsLiked";
-import { useLikesCount } from "@/src/hooks/useLikesCount";
-import { useComments } from "@/src/hooks/useComments";
+import { useIsLiked } from "@/src/hooks/posts/useIsLiked";
+import { useLikesCount } from "@/src/hooks/posts/useLikesCount";
+import { useComments } from "@/src/hooks/posts/useComments";
 import { toggleLike } from "@/src/lib/posts/likeApi";
 import { PostHeader } from "@/src/components/PostHeader/PostHeader";
 import { styles } from "./PostCard.style";

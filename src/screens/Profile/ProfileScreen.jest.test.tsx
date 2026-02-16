@@ -5,23 +5,23 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react-nativ
 import { Alert } from "react-native";
 
 import ProfileScreen from "./ProfileScreen";
-import { useMyPosts } from "@/src/hooks/useMyPosts";
+import { useMyPosts } from "@/src/hooks/posts/useMyPosts";
 import { signOut } from "firebase/auth";
 
-jest.mock("@/src/hooks/useMyPosts", () => ({
+jest.mock("@/src/hooks/posts/useMyPosts", () => ({
   useMyPosts: jest.fn(),
 }));
 
-jest.mock("../../hooks/useLikesCount", () => ({
+jest.mock("../../hooks/posts/useLikesCount", () => ({
   useLikesCount: jest.fn(() => 25),
 }));
 
-jest.mock("@/src/hooks/useIsLiked", () => ({
+jest.mock("@/src/hooks/posts/useIsLiked", () => ({
   useIsLiked: jest.fn(() => false),
 }));
 
 // ✅ Agregar mock de useComments
-jest.mock("../../hooks/useComments", () => ({
+jest.mock("../../hooks/posts/useComments", () => ({
   useComments: jest.fn(() => ({ comments: [], loading: false })),
 }));
 
@@ -147,7 +147,7 @@ describe("ProfileScreen", () => {
 
     render(<ProfileScreen />);
 
-    expect(screen.getByText("Log out")).toBeTruthy();
+    expect(screen.getByText("log-out-outline")).toBeTruthy();
   });
 
   it("calls signOut when logout pressed", async () => {
@@ -155,7 +155,11 @@ describe("ProfileScreen", () => {
 
     render(<ProfileScreen />);
 
-    fireEvent.press(screen.getByText("Log out"));
+    fireEvent.press(screen.getByText("log-out-outline"));
+
+    const alertButtons = (Alert.alert as unknown as jest.Mock).mock.calls[0][2];
+    const confirmButton = alertButtons.find((b: { text: string }) => b.text === "Sign Out");
+    await confirmButton.onPress();
 
     await waitFor(() => {
       expect(signOut).toHaveBeenCalled();
@@ -168,10 +172,14 @@ describe("ProfileScreen", () => {
 
     render(<ProfileScreen />);
 
-    fireEvent.press(screen.getByText("Log out"));
+    fireEvent.press(screen.getByText("log-out-outline"));
+
+    const alertButtons = (Alert.alert as unknown as jest.Mock).mock.calls[0][2];
+    const confirmButton = alertButtons.find((b: { text: string }) => b.text === "Sign Out");
+    await confirmButton.onPress();
 
     await waitFor(() => {
-      expect(Alert.alert).toHaveBeenCalledWith("Error", "No se pudo cerrar sesión.");
+      expect(Alert.alert).toHaveBeenCalledWith("Error", "Logout failed");
     });
   });
 
@@ -225,7 +233,7 @@ describe("ProfileScreen", () => {
     fireEvent.press(screen.getAllByText(/Image:/)[0]);
 
     // ✅ Verificar que el modal se abrió
-    expect(screen.getByText("testuser")).toBeTruthy();
+    expect(screen.getAllByText("testuser").length).toBeGreaterThan(0);
     expect(screen.getByText("25")).toBeTruthy();
   });
 
@@ -248,10 +256,10 @@ describe("ProfileScreen", () => {
 
     fireEvent.press(screen.getAllByText(/Image:/)[0]);
 
-    expect(screen.getByText("cooluser")).toBeTruthy();
+    expect(screen.getAllByText("cooluser").length).toBeGreaterThan(0);
   });
 
-  it("shows Post as title when username not available", () => {
+  it("shows email as title when username not available", () => {
     const mockPosts = [
       {
         id: "post-1",
@@ -270,10 +278,10 @@ describe("ProfileScreen", () => {
 
     fireEvent.press(screen.getAllByText(/Image:/)[0]);
 
-    expect(screen.getByText("Post")).toBeTruthy();
+    expect(screen.getAllByText("test@example.com").length).toBeGreaterThan(0);
   });
 
-  it("shows Post as title when no user info", () => {
+  it("shows User fallback when no user info", () => {
     const mockPosts = [
       {
         id: "post-1",
@@ -291,7 +299,7 @@ describe("ProfileScreen", () => {
 
     fireEvent.press(screen.getAllByText(/Image:/)[0]);
 
-    expect(screen.getByText("Post")).toBeTruthy();
+    expect(screen.getByText("User")).toBeTruthy();
   });
 
   it("displays likes count in modal", () => {
@@ -417,7 +425,7 @@ describe("ProfileScreen", () => {
 
     fireEvent.press(screen.getAllByText(/Image:/)[0]);
 
-    expect(screen.getByText("testuser")).toBeTruthy();
+    expect(screen.getAllByText("testuser").length).toBeGreaterThan(0);
 
     const closeButton = screen.getByText("close");
     fireEvent.press(closeButton);

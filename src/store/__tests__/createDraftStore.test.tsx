@@ -47,6 +47,20 @@ describe("createDraftStore", () => {
     expect(useCreateDraftStore.getState().isCaptionFocused).toBe(false);
   });
 
+  it("setChallenge sets id and title", () => {
+    useCreateDraftStore.getState().setChallenge("challenge-1", "Weekly challenge");
+
+    expect(useCreateDraftStore.getState().challengeId).toBe("challenge-1");
+    expect(useCreateDraftStore.getState().challengeTitle).toBe("Weekly challenge");
+  });
+
+  it("setChallenge sets title to null when omitted", () => {
+    useCreateDraftStore.getState().setChallenge("challenge-2");
+
+    expect(useCreateDraftStore.getState().challengeId).toBe("challenge-2");
+    expect(useCreateDraftStore.getState().challengeTitle).toBeNull();
+  });
+
   it("resetDraft clears everything", () => {
     // Set some values
     useCreateDraftStore.getState().setImageUri("file:///test.jpg");

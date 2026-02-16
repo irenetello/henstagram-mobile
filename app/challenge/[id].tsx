@@ -8,9 +8,9 @@ import PostCard from "@/src/components/PostCard/PostCard";
 import { PostDetailModal } from "@/src/components/PostDetailModal/PostDetailModal";
 import { auth } from "@/src/lib/auth";
 
-import { useChallenge } from "@/src/hooks/useChallenge";
-import { useChallengePosts } from "@/src/hooks/useChallengePosts";
-import { useCountdown } from "@/src/hooks/useCountdown";
+import { useChallenge } from "@/src/hooks/challenges/useChallenge";
+import { useChallengePosts } from "@/src/hooks/challenges/useChallengePosts";
+import { useCountdown } from "@/src/hooks/utils/useCountdown";
 import { styles, COLS } from "@/src/screens/Challenges/ChallengeDetail.styles";
 import { deletePost } from "@/src/lib/posts/postApi";
 

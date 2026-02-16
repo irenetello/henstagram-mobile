@@ -4,21 +4,21 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react-native";
 
 import FeedScreen from "./FeedScreen";
-import { usePosts } from "@/src/hooks/usePosts";
+import { usePosts } from "@/src/hooks/posts/usePosts";
 import { deletePost } from "@/src/lib/posts/postApi";
 
 // ❌ NO HAGAS ESTO (rompe por hoisting):
 // import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 
-jest.mock("@/src/hooks/usePosts", () => ({
+jest.mock("@/src/hooks/posts/usePosts", () => ({
   usePosts: jest.fn(),
 }));
 
-jest.mock("@/src/hooks/useLikesCount", () => ({
+jest.mock("@/src/hooks/posts/useLikesCount", () => ({
   useLikesCount: jest.fn(() => 42),
 }));
 
-jest.mock("@/src/hooks/useIsLiked", () => ({
+jest.mock("@/src/hooks/posts/useIsLiked", () => ({
   useIsLiked: jest.fn(() => false),
 }));
 

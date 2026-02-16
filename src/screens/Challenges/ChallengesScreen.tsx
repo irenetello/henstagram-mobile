@@ -10,14 +10,14 @@ import {
 import { router } from "expo-router";
 
 import { Screen } from "@/src/components/Screen/Screen";
-import { useChallengesUser } from "@/src/hooks/useChallengesUser";
-import { useChallengesAdmin } from "@/src/hooks/useChallengesAdmin";
-import { useIsAdmin } from "@/src/hooks/useIsAdmin";
+import { useChallengesUser } from "@/src/hooks/challenges/useChallengesUser";
+import { useChallengesAdmin } from "@/src/hooks/challenges/useChallengesAdmin";
+import { useIsAdmin } from "@/src/hooks/user/useIsAdmin";
 import { useAuth } from "@/src/auth/AuthProvider";
 import type { Challenge } from "@/src/types/challenge";
 import { styles } from "./ChallengesScreen.styles";
 import { ChallengeItem } from "./ChallengeItem";
-import { useChallengesFilter } from "../../hooks/useChallengesFilter";
+import { useChallengesFilter } from "../../hooks/challenges/useChallengesFilter";
 import {
   handleActivate,
   handleDelete,

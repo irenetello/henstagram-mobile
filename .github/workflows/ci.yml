@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  test:
+  test-vitest:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,5 +22,24 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Run tests
-        run: npm run test:all
+      - name: Run Vitest (CI)
+        run: npm run test:ci
+
+  test-jest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Run Jest (UI)
+        run: npm run test:ui

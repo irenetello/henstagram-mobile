@@ -5,12 +5,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import CreateScreen from "./create";
 import FeedScreen from "./feed";
-import ProfileScreen from "./profileScreen";
+import ProfileScreen from "./profile";
 
 import { BottomTabBar } from "@/src/components/BottomTabBar";
 import ChallengesScreen from "./challenges";
 import { useCreateDraftStore } from "@/src/store/createDraftStore";
-import OurHistoryScreen from "./ourHistory";
+import OurHistoryScreen from "./memories";
 import { onTabRequest } from "@/src/lib/tabs/tabBus";
 
 type TabKey = "feed" | "create" | "challenges" | "ourHistory" | "profile";

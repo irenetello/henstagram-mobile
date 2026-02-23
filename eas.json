@@ -5,6 +5,7 @@
   },
   "build": {
     "development": {
+      "ios":{"simulator": true},
       "developmentClient": true,
       "distribution": "internal",
       "env": {
@@ -17,7 +18,7 @@
       }
     },
     "preview": {
-      "distribution": "internal",
+      "distribution": "store",
       "android": {
         "buildType": "apk"
       },
@@ -31,6 +32,7 @@
       }
     },
     "production": {
+      "distribution": "store",
       "autoIncrement": true,
       "env": {
         "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyD_Hn8yYJeo9JVDt0qGNqmyIO-nJ7382nc",

@@ -25,11 +25,12 @@
       "resizeMode": "cover"
     },
     "ios": {
+      "buildNumber": "1",
       "supportsTablet": true,
       "bundleIdentifier": "com.irene-tllo.henstagrammobile",
       "infoPlist": {
         "NSCameraUsageDescription": "We use the camera to let you take photos and videos for posts.",
-        "NSPhotoLibraryUsageDescription": "We use your photo library so you can pick media for posts.",
+        "NSPhotoLibraryUsageDescription": "We use your photo library so you can select media for posts.",
         "NSPhotoLibraryAddUsageDescription": "We save media to your library when you choose to export it.",
         "ITSAppUsesNonExemptEncryption": false
       }

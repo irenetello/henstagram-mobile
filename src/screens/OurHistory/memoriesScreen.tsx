@@ -14,7 +14,7 @@ import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { Screen } from "@/src/components/Screen/Screen";
 import { db } from "@/src/lib/firebase";
 import ConfettiCannon from "react-native-confetti-cannon";
-import { styles } from "./OurHistoryScreen.styles";
+import { styles } from "./memoriesScreen.styles";
 
 type OurHistoryEvent = {
   id: string;

@@ -1,1 +1,1 @@
-export { default } from "@/src/screens/OurHistory/OurHistoryScreen";
+export { default } from "@/src/screens/OurHistory/memoriesScreen";

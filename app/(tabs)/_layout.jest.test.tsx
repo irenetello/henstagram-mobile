@@ -60,13 +60,13 @@ jest.mock("./challenges", () => {
   return () => <Text>ChallengesScreen</Text>;
 });
 
-jest.mock("./ourHistory", () => {
+jest.mock("./memories", () => {
   const ReactLocal = require("react");
   const { Text } = require("react-native");
   return () => <Text>OurHistoryScreen</Text>;
 });
 
-jest.mock("./profileScreen", () => {
+jest.mock("./profile", () => {
   const ReactLocal = require("react");
   const { Text } = require("react-native");
   return () => <Text>ProfileScreen</Text>;

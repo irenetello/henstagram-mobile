@@ -6,6 +6,10 @@ import { ChallengeNotificationScheduler } from "./ChallengeNotificationScheduler
 const mockSubscribeActiveChallenges = jest.fn();
 const mockScheduleChallengeIfNeeded = jest.fn();
 
+jest.mock("@/src/auth/AuthProvider", () => ({
+  useAuth: () => ({ user: { uid: "u1" }, initializing: false }),
+}));
+
 jest.mock("@/src/lib/challenges/challengeApi", () => ({
   subscribeActiveChallenges: (...args: any[]) => mockSubscribeActiveChallenges(...args),
 }));

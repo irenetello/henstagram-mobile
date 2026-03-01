@@ -78,7 +78,6 @@ export default function ChallengeDetailScreen() {
         <Text style={styles.errorText}>Challenge not found.</Text>
       ) : (
         <View style={styles.container}>
-          {/* Header */}
           <View style={styles.headerCard}>
             <Text style={styles.title}>{challenge.title}</Text>
             <Text style={styles.prompt}>{challenge.prompt}</Text>
@@ -157,7 +156,6 @@ export default function ChallengeDetailScreen() {
             </Pressable>
           </View>
 
-          {/* Posts */}
           {postsError ? (
             <Text style={styles.errorText}>
               Error loading posts: {String(postsError)}

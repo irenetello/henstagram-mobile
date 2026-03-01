@@ -7,23 +7,30 @@
     "icon": "./assets/images/icon.png",
     "scheme": "henstagram",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "jsEngine": "jsc",
     "plugins": [
       [
         "expo-build-properties",
         {
+          "ios": {
+            "newArchEnabled": false
+          },
           "android": {
             "newArchEnabled": true
           }
         }
       ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/loading.png",
+          "resizeMode": "cover",
+          "backgroundColor": "#ffffff"
+        }
+      ],
       "expo-router",
       "@react-native-community/datetimepicker"
     ],
-    "splash": {
-      "image": "./assets/images/loading.jpg",
-      "resizeMode": "cover"
-    },
     "ios": {
       "buildNumber": "1",
       "supportsTablet": true,
@@ -44,7 +51,6 @@
         "backgroundColor": "#ffffff"
       },
       "softwareKeyboardLayoutMode": "resize",
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.irene.tllo.henstagrammobile"
     },

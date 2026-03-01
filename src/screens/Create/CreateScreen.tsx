@@ -1,6 +1,7 @@
 import { Screen } from "@/src/components/Screen/Screen";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import type { Href } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 
 import {
@@ -115,7 +116,7 @@ export default function CreateScreen() {
           params: { id: String(activeChallengeId) },
         });
       } else {
-        router.replace("/(tabs)/feed");
+        router.replace("/(tabs)/feed" as Href);
       }
     } catch (e: any) {
       console.error("UPLOAD ERROR:", e);

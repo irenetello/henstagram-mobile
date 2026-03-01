@@ -13,6 +13,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { router } from "expo-router";
+import type { Href } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import type { Post } from "@/src/types/post";
 import { useAuth } from "@/src/auth/AuthProvider";
@@ -144,23 +146,25 @@ export function PostDetailModal({
         >
           <View style={styles.detailWrap}>
             {/* HEADER */}
-            <View style={styles.detailHeader}>
-              <Pressable onPress={onClose} hitSlop={10}>
-                <Ionicons name="close" size={24} />
-              </Pressable>
-
-              <Text style={styles.detailTitle} numberOfLines={1}>
-                {displayName}
-              </Text>
-
-              {canManagePost && onDeletePost ? (
-                <Pressable onPress={() => setMenuOpen(true)} hitSlop={10}>
-                  <Ionicons name="ellipsis-horizontal" size={22} />
+            <SafeAreaView edges={["top"]} style={styles.detailHeaderSafe}>
+              <View style={styles.detailHeader}>
+                <Pressable onPress={onClose} hitSlop={10}>
+                  <Ionicons name="close" size={24} />
                 </Pressable>
-              ) : (
-                <View style={{ width: 22 }} />
-              )}
-            </View>
+
+                <Text style={styles.detailTitle} numberOfLines={1}>
+                  {displayName}
+                </Text>
+
+                {canManagePost && onDeletePost ? (
+                  <Pressable onPress={() => setMenuOpen(true)} hitSlop={10}>
+                    <Ionicons name="ellipsis-horizontal" size={22} />
+                  </Pressable>
+                ) : (
+                  <View style={{ width: 22 }} />
+                )}
+              </View>
+            </SafeAreaView>
 
             {/* IMAGE */}
             {!feedMode && (

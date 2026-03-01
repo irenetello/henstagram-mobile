@@ -2,6 +2,7 @@ import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   detailWrap: { flex: 1 },
+  detailHeaderSafe: { backgroundColor: "white" },
   detailHeader: {
     paddingHorizontal: 12,
     paddingVertical: 12,

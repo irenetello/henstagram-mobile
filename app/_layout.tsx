@@ -2,6 +2,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack, useRouter, useSegments } from "expo-router";
+import type { Href } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
@@ -57,11 +58,11 @@ function AuthGate() {
     const inLogin = segments.includes("login");
 
     if (!user && !inLogin) {
-      router.replace("/login");
+      router.replace("/login" as Href);
       return;
     }
     if (user && inLogin) {
-      router.replace("/(tabs)/feed");
+      router.replace("/(tabs)/feed" as Href);
       return;
     }
   }, [user, initializing, segments, router]);
@@ -71,12 +72,13 @@ function AuthGate() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const { user } = useAuth();
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <AuthGate />
       <NotificationTapHandler />
-      <ChallengeNotificationScheduler />
+      {user ? <ChallengeNotificationScheduler /> : null}
       <Stack>
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

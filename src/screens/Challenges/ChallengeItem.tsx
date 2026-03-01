@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
+import type { Href } from "expo-router";
 
 import { useCountdown } from "@/src/hooks/utils/useCountdown";
 import { getChallengeStatus } from "@/src/lib/challenges/challengeModel";

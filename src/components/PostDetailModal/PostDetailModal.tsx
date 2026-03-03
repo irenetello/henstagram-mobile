@@ -15,7 +15,6 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { router } from "expo-router";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { requestTab } from "@/src/lib/tabs/tabBus";
-import { useBingoStore } from "@/src/store/bingoStore";
 
 import type { Post } from "@/src/types/post";
 import { useAuth } from "@/src/auth/AuthProvider";
@@ -26,6 +25,7 @@ import { toggleLike } from "@/src/lib/posts/likeApi";
 import { addComment, deleteComment } from "@/src/lib/comments/commentApi";
 import { styles } from "./PostDetailModal.style";
 import { getDisplayName } from "@/src/lib/users/displayName";
+import { useBingoStore } from "@/src/store/bingoStore";
 
 type Props = {
   visible: boolean;
@@ -183,7 +183,7 @@ export function PostDetailModal({
 
                   {post.bingoCardId && post.bingoCellId ? (
                     <Pressable
-                      style={[styles.challengePill, { top: 50 }]}
+                      style={[styles.challengePill]}
                       onPress={() => {
                         setBingoFocus(String(post.bingoCardId), String(post.bingoCellId));
                         requestTab("minigames");

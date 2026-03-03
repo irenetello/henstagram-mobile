@@ -26,6 +26,11 @@ describe("mapPostDoc", () => {
       storagePath: undefined,
       likesCount: 0,
       commentsCount: 0,
+      challengeId: undefined,
+      challengeTitle: undefined,
+      bingoCardId: undefined,
+      bingoCellId: undefined,
+      bingoCellText: null,
     });
   });
 });

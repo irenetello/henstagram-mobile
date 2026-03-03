@@ -85,7 +85,7 @@ export default function PostCard({
 
         {post.bingoCardId && post.bingoCellId ? (
           <Pressable
-            style={[styles.challengePill, { top: 50 }]}
+            style={styles.bingoPill}
             onPress={() => {
               setBingoFocus(String(post.bingoCardId), String(post.bingoCellId));
               requestTab("minigames");
@@ -100,7 +100,6 @@ export default function PostCard({
         <Image source={{ uri: post.imageUrl }} style={styles.image} contentFit="cover" />
       </Pressable>
 
-      {/* ❤️ + 💬 */}
       <View style={styles.socialRow}>
         <Pressable onPress={onToggleLike} hitSlop={10} style={styles.iconBtn}>
           <Ionicons
@@ -121,7 +120,6 @@ export default function PostCard({
         <Text style={styles.countText}>{commentsCount}</Text>
       </View>
 
-      {/* Caption */}
       {post.caption?.trim() ? (
         <View style={styles.captionWrap}>
           <Text style={styles.authorInline}>{displayName}</Text>

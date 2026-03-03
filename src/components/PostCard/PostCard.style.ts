@@ -30,6 +30,7 @@ export const styles = StyleSheet.create({
   authorInline: { fontWeight: "700", fontSize: 14, marginRight: 6 },
   captionText: { fontSize: 14, opacity: 0.92 },
 
+  // Existing pill (challenge)
   challengePill: {
     position: "absolute",
     top: 10,
@@ -42,4 +43,16 @@ export const styles = StyleSheet.create({
     maxWidth: "80%",
   },
   challengePillText: { color: "#fff", fontSize: 12, fontWeight: "600" },
+
+  bingoPill: {
+    position: "absolute",
+    top: 44,
+    left: 10,
+    zIndex: 10,
+    backgroundColor: "rgba(0,0,0,0.65)",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    maxWidth: "80%",
+  },
 });

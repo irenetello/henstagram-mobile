@@ -26,8 +26,8 @@ type OurHistoryEvent = {
 };
 
 const FINAL_MESSAGE = {
-  title: "For the Hen 💌",
-  body: "Kim, I love you. And to the bridesmaids: good luck keeping this legend alive tonight 😄\n\n— Jasper",
+  title: "For the Bride 💌",
+  body: "Kim - Thank you for giving me the best of all worlds in all ways. I've never known anyone smarter, kinder, more determined, or more beautiful. I love you so much and I can't wait for this next chapter in our adventure together. 😄\n\n— J xx",
 };
 
 export default function OurHistoryScreen() {

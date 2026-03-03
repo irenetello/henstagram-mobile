@@ -83,3 +83,75 @@ export const onChallengeActivated = onDocumentUpdated(
     );
   }
 );
+
+// 🧩 Bingo winner: first user to complete any ROW or COLUMN wins.
+// Writes to: bingoWinners/{cardId}
+export const onBingoPostCreated = onDocumentCreated("posts/{postId}", async (event) => {
+  const post = event.data?.data();
+  if (!post) return;
+
+  const bingoCardId = post.bingoCardId;
+  const bingoCellId = post.bingoCellId;
+  const userId = post.userId;
+  const username = post.username ?? post.userEmail ?? null;
+
+  if (!bingoCardId || !bingoCellId || !userId) return;
+
+  const winnerRef = db.doc(`bingoWinners/${bingoCardId}`);
+
+  // Build set of this user's completed cells for this card
+  const qSnap = await db
+    .collection("posts")
+    .where("userId", "==", userId)
+    .where("bingoCardId", "==", bingoCardId)
+    .get();
+
+  const completed = new Set<string>(["c22"]); // free square
+  for (const d of qSnap.docs) {
+    const data = d.data();
+    if (typeof data.bingoCellId === "string") completed.add(data.bingoCellId);
+  }
+
+  const size = 5;
+  const hasLine = () => {
+    // rows
+    for (let r = 0; r < size; r++) {
+      let ok = true;
+      for (let c = 0; c < size; c++) {
+        if (!completed.has(`c${r}${c}`)) {
+          ok = false;
+          break;
+        }
+      }
+      if (ok) return { type: "row" as const, index: r };
+    }
+    // cols
+    for (let c = 0; c < size; c++) {
+      let ok = true;
+      for (let r = 0; r < size; r++) {
+        if (!completed.has(`c${r}${c}`)) {
+          ok = false;
+          break;
+        }
+      }
+      if (ok) return { type: "col" as const, index: c };
+    }
+    return null;
+  };
+
+  const line = hasLine();
+  if (!line) return;
+
+  await db.runTransaction(async (tx) => {
+    const existing = await tx.get(winnerRef);
+    if (existing.exists) return;
+
+    tx.set(winnerRef, {
+      userId,
+      username,
+      postId: event.params.postId,
+      line,
+      wonAt: FieldValue.serverTimestamp(),
+    });
+  });
+});

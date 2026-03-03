@@ -12,6 +12,8 @@ import { useComments } from "@/src/hooks/posts/useComments";
 import { toggleLike } from "@/src/lib/posts/likeApi";
 import { PostHeader } from "@/src/components/PostHeader/PostHeader";
 import { styles } from "./PostCard.style";
+import { requestTab } from "@/src/lib/tabs/tabBus";
+import { useBingoStore } from "@/src/store/bingoStore";
 
 type Props = {
   post: Post;
@@ -29,6 +31,7 @@ export default function PostCard({
   onDelete,
 }: Props) {
   const { user } = useAuth();
+  const setBingoFocus = useBingoStore((s) => s.setFocus);
 
   const isOwner = !!currentUid && post.userId === currentUid;
 
@@ -80,10 +83,23 @@ export default function PostCard({
           </Pressable>
         ) : null}
 
+        {post.bingoCardId && post.bingoCellId ? (
+          <Pressable
+            style={styles.bingoPill}
+            onPress={() => {
+              setBingoFocus(String(post.bingoCardId), String(post.bingoCellId));
+              requestTab("minigames");
+            }}
+          >
+            <Text style={styles.challengePillText} numberOfLines={1}>
+              🎯 Bingo
+            </Text>
+          </Pressable>
+        ) : null}
+
         <Image source={{ uri: post.imageUrl }} style={styles.image} contentFit="cover" />
       </Pressable>
 
-      {/* ❤️ + 💬 */}
       <View style={styles.socialRow}>
         <Pressable onPress={onToggleLike} hitSlop={10} style={styles.iconBtn}>
           <Ionicons
@@ -104,7 +120,6 @@ export default function PostCard({
         <Text style={styles.countText}>{commentsCount}</Text>
       </View>
 
-      {/* Caption */}
       {post.caption?.trim() ? (
         <View style={styles.captionWrap}>
           <Text style={styles.authorInline}>{displayName}</Text>

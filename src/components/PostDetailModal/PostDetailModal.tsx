@@ -14,6 +14,7 @@ import { Image } from "expo-image";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { router } from "expo-router";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { requestTab } from "@/src/lib/tabs/tabBus";
 
 import type { Post } from "@/src/types/post";
 import { useAuth } from "@/src/auth/AuthProvider";
@@ -24,6 +25,7 @@ import { toggleLike } from "@/src/lib/posts/likeApi";
 import { addComment, deleteComment } from "@/src/lib/comments/commentApi";
 import { styles } from "./PostDetailModal.style";
 import { getDisplayName } from "@/src/lib/users/displayName";
+import { useBingoStore } from "@/src/store/bingoStore";
 
 type Props = {
   visible: boolean;
@@ -54,6 +56,7 @@ export function PostDetailModal({
   const { comments, loading: commentsLoading } = useComments(postId);
   const commentsCount = comments?.length ?? 0;
   const displayName = post?.username || post?.userEmail;
+  const setBingoFocus = useBingoStore((s) => s.setFocus);
 
   const canManagePost = useMemo(() => {
     if (!post || !user) return false;
@@ -174,6 +177,21 @@ export function PostDetailModal({
                     <Pressable style={styles.challengePill} onPress={openChallenge}>
                       <Text style={styles.challengePillText} numberOfLines={1}>
                         🏷️ {post.challengeTitle ?? "Challenge"}
+                      </Text>
+                    </Pressable>
+                  ) : null}
+
+                  {post.bingoCardId && post.bingoCellId ? (
+                    <Pressable
+                      style={[styles.challengePill]}
+                      onPress={() => {
+                        setBingoFocus(String(post.bingoCardId), String(post.bingoCellId));
+                        requestTab("minigames");
+                        onClose();
+                      }}
+                    >
+                      <Text style={styles.challengePillText} numberOfLines={1}>
+                        🎯 Bingo
                       </Text>
                     </Pressable>
                   ) : null}

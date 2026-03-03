@@ -1,4 +1,4 @@
-import type { DocumentData, QueryDocumentSnapshot, Timestamp } from "firebase/firestore";
+import type { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 import type { Post } from "@/src/types/post";
 
 export function mapPostDoc(doc: QueryDocumentSnapshot<DocumentData>): Post {
@@ -17,5 +17,8 @@ export function mapPostDoc(doc: QueryDocumentSnapshot<DocumentData>): Post {
     commentsCount: data.commentsCount ?? 0,
     challengeId: data.challengeId,
     challengeTitle: data.challengeTitle,
+    bingoCardId: data.bingoCardId,
+    bingoCellId: data.bingoCellId,
+    bingoCellText: data.bingoCellText ?? null,
   };
 }

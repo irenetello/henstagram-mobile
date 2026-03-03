@@ -1,4 +1,4 @@
-type TabKey = "feed" | "create" | "challenges" | "ourHistory" | "profile";
+type TabKey = "feed" | "create" | "challenges" | "minigames" | "ourHistory" | "profile";
 
 let listeners: Array<(tab: TabKey) => void> = [];
 

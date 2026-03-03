@@ -43,6 +43,12 @@ export default function CreateScreen() {
   const draftChallengeTitle = useCreateDraftStore((s) => s.challengeTitle);
   const setChallenge = useCreateDraftStore((s) => s.setChallenge);
 
+  // ✅ bingo draft
+  const draftBingoCardId = useCreateDraftStore((s) => s.bingoCardId);
+  const draftBingoCellId = useCreateDraftStore((s) => s.bingoCellId);
+  const draftBingoCellText = useCreateDraftStore((s) => s.bingoCellText);
+  const setBingo = useCreateDraftStore((s) => s.setBingo);
+
   const [isPublishing, setIsPublishing] = useState(false);
 
   const { challengeId, challengeTitle } = useLocalSearchParams<{
@@ -97,15 +103,33 @@ export default function CreateScreen() {
   const publish = async () => {
     if (!canPost) return;
     setIsPublishing(true);
+
     const activeChallengeId = draftChallengeId;
     const activeChallengeTitle = draftChallengeTitle;
+
+    const activeBingoCardId = draftBingoCardId;
+    const activeBingoCellId = draftBingoCellId;
+    const activeBingoCellText = draftBingoCellText;
+
     try {
-      const extra = activeChallengeId
-        ? {
-            challengeId: activeChallengeId,
-            challengeTitle: activeChallengeTitle ?? undefined,
-          }
-        : undefined;
+      const extra =
+        activeChallengeId || activeBingoCardId
+          ? {
+              ...(activeChallengeId
+                ? {
+                    challengeId: activeChallengeId,
+                    challengeTitle: activeChallengeTitle ?? undefined,
+                  }
+                : {}),
+              ...(activeBingoCardId && activeBingoCellId
+                ? {
+                    bingoCardId: activeBingoCardId,
+                    bingoCellId: activeBingoCellId,
+                    bingoCellText: activeBingoCellText ?? undefined,
+                  }
+                : {}),
+            }
+          : undefined;
 
       await publishPost(imageUri!, caption.trim(), extra);
       resetDraft();
@@ -142,6 +166,22 @@ export default function CreateScreen() {
           >
             <Text style={styles.title}>Create memory ➕</Text>
 
+            {/* ✅ Bingo banner (optional) */}
+            {draftBingoCardId && draftBingoCellId ? (
+              <View style={styles.challengeBanner}>
+                <Text style={styles.challengeBannerText} numberOfLines={2}>
+                  Bingo: {draftBingoCellText ?? "Bingo square"}
+                </Text>
+                <Pressable
+                  onPress={() => setBingo(null, null, null)}
+                  disabled={isPublishing}
+                  style={[styles.challengeRemoveBtn, isPublishing && styles.disabled]}
+                >
+                  <Text style={styles.challengeRemoveBtnText}>Remove</Text>
+                </Pressable>
+              </View>
+            ) : null}
+
             {/* Challenge banner (optional) */}
             {draftChallengeId ? (
               <View style={styles.challengeBanner}>
@@ -157,6 +197,7 @@ export default function CreateScreen() {
                 </Pressable>
               </View>
             ) : null}
+
             {!imageUri ? (
               <View style={styles.pickRow}>
                 <Pressable
@@ -185,6 +226,7 @@ export default function CreateScreen() {
                 </Pressable>
               </View>
             ) : null}
+
             {imageUri && (
               <View style={styles.previewWrap}>
                 <Image source={{ uri: imageUri }} style={styles.preview} />
@@ -197,6 +239,7 @@ export default function CreateScreen() {
                 )}
               </View>
             )}
+
             {imageUri && (
               <View style={styles.photoActions}>
                 <Pressable
@@ -222,6 +265,7 @@ export default function CreateScreen() {
                 </Pressable>
               </View>
             )}
+
             <TextInput
               value={caption}
               editable={!isPublishing}
@@ -232,9 +276,11 @@ export default function CreateScreen() {
               style={[styles.input, isPublishing && styles.inputDisabled]}
               multiline
             />
+
             <Text style={styles.counter}>
               {caption.length} / {MAX_CHARS}
             </Text>
+
             <Pressable
               onPress={publish}
               disabled={!canPost}

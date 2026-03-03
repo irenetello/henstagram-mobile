@@ -11,4 +11,7 @@ export type Post = {
   createdAt: any;
   challengeId?: string;
   challengeTitle?: string;
+  bingoCardId?: string;
+  bingoCellId?: string;
+  bingoCellText?: string | null;
 };

@@ -22,6 +22,9 @@ export async function createPost(input: {
   userEmail?: string;
   challengeId?: string;
   challengeTitle?: string;
+  bingoCardId?: string;
+  bingoCellId?: string;
+  bingoCellText?: string;
 }) {
   const data: any = {
     userId: input.userId,
@@ -40,6 +43,12 @@ export async function createPost(input: {
     if (already) {
       throw new Error("You already participated in this challenge");
     }
+  }
+
+  if (input.bingoCardId) {
+    data.bingoCardId = input.bingoCardId;
+    data.bingoCellId = input.bingoCellId ?? null;
+    data.bingoCellText = input.bingoCellText ?? null;
   }
 
   await addDoc(collection(db, "posts"), data); // ✅ NO envolver en { data }

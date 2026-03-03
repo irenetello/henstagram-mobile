@@ -13,7 +13,13 @@ async function uriToBlob(uri: string): Promise<Blob> {
 export async function publishPost(
   imageUri: string,
   caption: string,
-  opts?: { challengeId?: string; challengeTitle?: string },
+  opts?: {
+    challengeId?: string;
+    challengeTitle?: string;
+    bingoCardId?: string;
+    bingoCellId?: string;
+    bingoCellText?: string;
+  },
 ) {
   const user = auth.currentUser;
   if (!user) throw new Error("User not authenticated");
@@ -36,7 +42,14 @@ export async function publishPost(
     storagePath,
     username: profile?.displayName ?? undefined,
     userEmail: user.email ?? undefined,
+
+    // challenge (optional)
     challengeId: opts?.challengeId,
     challengeTitle: opts?.challengeTitle,
+
+    // bingo (optional)
+    bingoCardId: opts?.bingoCardId,
+    bingoCellId: opts?.bingoCellId,
+    bingoCellText: opts?.bingoCellText,
   });
 }

@@ -12,10 +12,18 @@ import ChallengesScreen from "./challenges";
 import { useCreateDraftStore } from "@/src/store/createDraftStore";
 import OurHistoryScreen from "./memories";
 import { onTabRequest } from "@/src/lib/tabs/tabBus";
+import MiniGamesScreen from "./minigames";
 
-type TabKey = "feed" | "create" | "challenges" | "ourHistory" | "profile";
+type TabKey = "feed" | "create" | "challenges" | "minigames" | "ourHistory" | "profile";
 
-const TAB_ORDER: TabKey[] = ["feed", "create", "challenges", "ourHistory", "profile"];
+const TAB_ORDER: TabKey[] = [
+  "feed",
+  "create",
+  "challenges",
+  "minigames",
+  "ourHistory",
+  "profile",
+];
 
 export default function TabsLayout() {
   const pagerRef = useRef<PagerView>(null);
@@ -155,6 +163,10 @@ export default function TabsLayout() {
 
         <View key="challenges" style={styles.page}>
           <ChallengesScreen />
+        </View>
+
+        <View key="minigames" style={styles.page}>
+          <MiniGamesScreen />
         </View>
 
         <View key="ourHistory" style={styles.page}>

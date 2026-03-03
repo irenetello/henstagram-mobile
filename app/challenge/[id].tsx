@@ -1,7 +1,17 @@
 import React, { useMemo, useState } from "react";
-import { ActivityIndicator, Alert, FlatList, Pressable, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  BackHandler,
+  FlatList,
+  Platform,
+  Pressable,
+  Text,
+  View,
+} from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { Image } from "expo-image";
+import { useFocusEffect } from "@react-navigation/native";
 
 import { Screen } from "@/src/components/Screen/Screen";
 import PostCard from "@/src/components/PostCard/PostCard";
@@ -53,6 +63,33 @@ export default function ChallengeDetailScreen() {
   const countdown = useCountdown(challenge?.endAt);
 
   const loading = loadingChallenge || loadingPosts;
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (Platform.OS !== "android") return undefined;
+
+      const onHardwareBackPress = () => {
+        if (selectedPost) {
+          setSelectedPost(null);
+          return true;
+        }
+
+        if (router.canGoBack()) {
+          router.back();
+          return true;
+        }
+
+        return false;
+      };
+
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onHardwareBackPress,
+      );
+
+      return () => subscription.remove();
+    }, [selectedPost]),
+  );
 
   const handleDelete = async (post: Post) => {
     await deletePost({ id: post.id, storagePath: post.storagePath });

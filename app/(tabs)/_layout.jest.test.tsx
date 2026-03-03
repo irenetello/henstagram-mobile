@@ -60,6 +60,12 @@ jest.mock("./challenges", () => {
   return () => <Text>ChallengesScreen</Text>;
 });
 
+jest.mock("./minigames", () => {
+  const ReactLocal = require("react");
+  const { Text } = require("react-native");
+  return () => <Text>MiniGamesScreen</Text>;
+});
+
 jest.mock("./memories", () => {
   const ReactLocal = require("react");
   const { Text } = require("react-native");
@@ -120,7 +126,7 @@ describe("app/(tabs)/_layout TabsLayout", () => {
     fireEvent.press(getByText("go-profile"));
 
     await waitFor(() => {
-      expect(mockSetPage).toHaveBeenCalledWith(4);
+      expect(mockSetPage).toHaveBeenCalledWith(5);
     });
   });
 

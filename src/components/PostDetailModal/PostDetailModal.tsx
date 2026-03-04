@@ -3,7 +3,9 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   Text,
   TextInput,
@@ -147,157 +149,167 @@ export function PostDetailModal({
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <SafeAreaProvider>
-        <View style={{ flex: 1 }}>
-          <KeyboardAwareScrollView
-            enableOnAndroid
-            keyboardShouldPersistTaps="handled"
-            extraScrollHeight={60}
-            contentContainerStyle={{ flexGrow: 1 }}
-          >
-            <View style={styles.detailWrap}>
-              {/* HEADER */}
-              <SafeAreaView edges={["top"]} style={styles.detailHeaderSafe}>
-                <View style={styles.detailHeader}>
-                  <Pressable onPress={onClose} hitSlop={10}>
-                    <Ionicons name="close" size={24} />
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <View style={{ flex: 1 }}>
+            <KeyboardAwareScrollView
+              enableOnAndroid
+              keyboardShouldPersistTaps="handled"
+              extraScrollHeight={60}
+              contentContainerStyle={{ flexGrow: 1 }}
+            >
+              <View style={styles.detailWrap}>
+                {/* HEADER */}
+                <SafeAreaView edges={["top"]} style={styles.detailHeaderSafe}>
+                  <View style={styles.detailHeader}>
+                    <Pressable onPress={onClose} hitSlop={10}>
+                      <Ionicons name="close" size={24} />
+                    </Pressable>
+
+                    <Text style={styles.detailTitle} numberOfLines={1}>
+                      {displayName}
+                    </Text>
+
+                    {canManagePost && onDeletePost ? (
+                      <Pressable onPress={() => setMenuOpen(true)} hitSlop={10}>
+                        <Ionicons name="ellipsis-horizontal" size={22} />
+                      </Pressable>
+                    ) : (
+                      <View style={{ width: 22 }} />
+                    )}
+                  </View>
+                </SafeAreaView>
+
+                {/* IMAGE */}
+                {!feedMode && (
+                  <View style={styles.imageWrapDetail}>
+                    {post.challengeId ? (
+                      <Pressable style={styles.challengePill} onPress={openChallenge}>
+                        <Text style={styles.challengePillText} numberOfLines={1}>
+                          🏷️ {post.challengeTitle ?? "Challenge"}
+                        </Text>
+                      </Pressable>
+                    ) : null}
+
+                    {post.bingoCardId && post.bingoCellId ? (
+                      <Pressable
+                        style={[styles.challengePill]}
+                        onPress={() => {
+                          setBingoFocus(
+                            String(post.bingoCardId),
+                            String(post.bingoCellId),
+                          );
+                          requestTab("minigames");
+                          onClose();
+                        }}
+                      >
+                        <Text style={styles.challengePillText} numberOfLines={1}>
+                          🎯 Bingo
+                        </Text>
+                      </Pressable>
+                    ) : null}
+
+                    <Image source={{ uri: post.imageUrl }} style={styles.detailImage} />
+                  </View>
+                )}
+                {/* LIKES + COMMENTS COUNTS */}
+                <View style={styles.socialRow}>
+                  <Pressable onPress={onToggleLike} hitSlop={10} style={styles.likeBtn}>
+                    <Ionicons
+                      name={liked ? "heart" : "heart-outline"}
+                      size={24}
+                      color={liked ? "#ff0000" : "#000"}
+                    />
                   </Pressable>
 
-                  <Text style={styles.detailTitle} numberOfLines={1}>
-                    {displayName}
+                  <Text style={styles.countText}>{likesCount}</Text>
+
+                  <Ionicons name="chatbubble-outline" size={22} />
+                  <Text style={[styles.countText, { marginLeft: 8 }]}>
+                    {commentsCount}
                   </Text>
-
-                  {canManagePost && onDeletePost ? (
-                    <Pressable onPress={() => setMenuOpen(true)} hitSlop={10}>
-                      <Ionicons name="ellipsis-horizontal" size={22} />
-                    </Pressable>
-                  ) : (
-                    <View style={{ width: 22 }} />
-                  )}
                 </View>
-              </SafeAreaView>
+                {post.caption?.trim() ? (
+                  <View style={styles.captionView}>
+                    <Text style={styles.captionUser}>
+                      {post.username ?? post.userEmail ?? "User"}
+                    </Text>
+                    <Text style={styles.captionText}>{post.caption}</Text>
+                  </View>
+                ) : null}
 
-              {/* IMAGE */}
-              {!feedMode && (
-                <View style={styles.imageWrapDetail}>
-                  {post.challengeId ? (
-                    <Pressable style={styles.challengePill} onPress={openChallenge}>
-                      <Text style={styles.challengePillText} numberOfLines={1}>
-                        🏷️ {post.challengeTitle ?? "Challenge"}
-                      </Text>
-                    </Pressable>
-                  ) : null}
+                {/* COMMENTS */}
+                <FlatList
+                  ref={commentsListRef}
+                  data={comments}
+                  scrollEnabled={false}
+                  keyExtractor={(item) => item.id}
+                  renderItem={({ item }) => {
+                    const canDelete = user?.uid === item.userId;
 
-                  {post.bingoCardId && post.bingoCellId ? (
-                    <Pressable
-                      style={[styles.challengePill]}
-                      onPress={() => {
-                        setBingoFocus(String(post.bingoCardId), String(post.bingoCellId));
-                        requestTab("minigames");
-                        onClose();
-                      }}
-                    >
-                      <Text style={styles.challengePillText} numberOfLines={1}>
-                        🎯 Bingo
-                      </Text>
-                    </Pressable>
-                  ) : null}
+                    return (
+                      <Pressable
+                        onLongPress={() => canDelete && confirmDeleteComment(item.id)}
+                        style={styles.commentItem}
+                      >
+                        <Text style={styles.commentUser}>
+                          {item.username ?? item.userEmail ?? "User"}
+                        </Text>
+                        <Text>{item.text}</Text>
+                      </Pressable>
+                    );
+                  }}
+                  ListEmptyComponent={
+                    commentsLoading ? (
+                      <ActivityIndicator style={{ padding: 16 }} />
+                    ) : (
+                      <Text style={styles.emptyText}>Tell them! 🐔 </Text>
+                    )
+                  }
+                />
 
-                  <Image source={{ uri: post.imageUrl }} style={styles.detailImage} />
-                </View>
-              )}
-              {/* LIKES + COMMENTS COUNTS */}
-              <View style={styles.socialRow}>
-                <Pressable onPress={onToggleLike} hitSlop={10} style={styles.likeBtn}>
-                  <Ionicons
-                    name={liked ? "heart" : "heart-outline"}
-                    size={24}
-                    color={liked ? "#ff0000" : "#000"}
-                  />
-                </Pressable>
-
-                <Text style={styles.countText}>{likesCount}</Text>
-
-                <Ionicons name="chatbubble-outline" size={22} />
-                <Text style={[styles.countText, { marginLeft: 8 }]}>{commentsCount}</Text>
+                <View style={{ height: 90 + bottomInset }} />
               </View>
-              {post.caption?.trim() ? (
-                <View style={styles.captionView}>
-                  <Text style={styles.captionUser}>
-                    {post.username ?? post.userEmail ?? "User"}
-                  </Text>
-                  <Text style={styles.captionText}>{post.caption}</Text>
-                </View>
-              ) : null}
+            </KeyboardAwareScrollView>
 
-              {/* COMMENTS */}
-              <FlatList
-                ref={commentsListRef}
-                data={comments}
-                scrollEnabled={false}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => {
-                  const canDelete = user?.uid === item.userId;
-
-                  return (
-                    <Pressable
-                      onLongPress={() => canDelete && confirmDeleteComment(item.id)}
-                      style={styles.commentItem}
-                    >
-                      <Text style={styles.commentUser}>
-                        {item.username ?? item.userEmail ?? "User"}
-                      </Text>
-                      <Text>{item.text}</Text>
-                    </Pressable>
-                  );
-                }}
-                ListEmptyComponent={
-                  commentsLoading ? (
-                    <ActivityIndicator style={{ padding: 16 }} />
-                  ) : (
-                    <Text style={styles.emptyText}>Tell them! 🐔 </Text>
-                  )
-                }
+            {/* INPUT */}
+            <View style={[styles.commentInputRow, { paddingBottom: 10 + bottomInset }]}>
+              <TextInput
+                value={commentText}
+                onChangeText={setCommentText}
+                placeholder="Añade un comentario…"
+                style={styles.commentInput}
               />
-
-              <View style={{ height: 90 + bottomInset }} />
+              <Pressable onPress={onSendComment} hitSlop={10}>
+                <Ionicons name="send" size={20} />
+              </Pressable>
             </View>
-          </KeyboardAwareScrollView>
 
-          {/* INPUT */}
-          <View style={[styles.commentInputRow, { paddingBottom: 10 + bottomInset }]}>
-            <TextInput
-              value={commentText}
-              onChangeText={setCommentText}
-              placeholder="Añade un comentario…"
-              style={styles.commentInput}
-            />
-            <Pressable onPress={onSendComment} hitSlop={10}>
-              <Ionicons name="send" size={20} />
-            </Pressable>
-          </View>
-
-          {/* ACTION SHEET (delete post) */}
-          <Modal
-            visible={menuOpen}
-            transparent
-            animationType="fade"
-            onRequestClose={() => setMenuOpen(false)}
-          >
-            <Pressable style={styles.sheetBackdrop} onPress={() => setMenuOpen(false)}>
-              <Pressable style={styles.sheet}>
-                <Pressable onPress={confirmDeletePost} style={{ paddingVertical: 12 }}>
-                  <Text style={styles.sheetDelete}>Delete</Text>
-                </Pressable>
-                <Pressable
-                  onPress={() => setMenuOpen(false)}
-                  style={{ paddingVertical: 12 }}
-                >
-                  <Text style={styles.sheetCancel}>Cancel</Text>
+            {/* ACTION SHEET (delete post) */}
+            <Modal
+              visible={menuOpen}
+              transparent
+              animationType="fade"
+              onRequestClose={() => setMenuOpen(false)}
+            >
+              <Pressable style={styles.sheetBackdrop} onPress={() => setMenuOpen(false)}>
+                <Pressable style={styles.sheet}>
+                  <Pressable onPress={confirmDeletePost} style={{ paddingVertical: 12 }}>
+                    <Text style={styles.sheetDelete}>Delete</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => setMenuOpen(false)}
+                    style={{ paddingVertical: 12 }}
+                  >
+                    <Text style={styles.sheetCancel}>Cancel</Text>
+                  </Pressable>
                 </Pressable>
               </Pressable>
-            </Pressable>
-          </Modal>
-        </View>
+            </Modal>
+          </View>
+        </KeyboardAvoidingView>
       </SafeAreaProvider>
     </Modal>
   );

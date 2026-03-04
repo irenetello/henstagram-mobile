@@ -51,10 +51,6 @@ export const styles = StyleSheet.create({
   emptyText: { padding: 16, opacity: 0.6 },
 
   commentInputRow: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 12,

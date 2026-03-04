@@ -9,10 +9,8 @@ import {
   Alert,
   Image,
   Keyboard,
-  KeyboardAvoidingView,
   Platform,
   Pressable,
-  ScrollView,
   Text,
   TextInput,
   TouchableWithoutFeedback,
@@ -24,6 +22,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/src/auth/AuthProvider";
 import { styles } from "@/src/screens/Create/CreateScreen.styles";
 import { publishPost } from "@/src/lib/posts/firebasePosts";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 const MAX_CHARS = 140;
 
@@ -43,7 +42,6 @@ export default function CreateScreen() {
   const draftChallengeTitle = useCreateDraftStore((s) => s.challengeTitle);
   const setChallenge = useCreateDraftStore((s) => s.setChallenge);
 
-  // ✅ bingo draft
   const draftBingoCardId = useCreateDraftStore((s) => s.bingoCardId);
   const draftBingoCellId = useCreateDraftStore((s) => s.bingoCellId);
   const draftBingoCellText = useCreateDraftStore((s) => s.bingoCellText);
@@ -151,158 +149,147 @@ export default function CreateScreen() {
 
   return (
     <Screen title="Create">
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={90}
-      >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <ScrollView
-            contentContainerStyle={[
-              styles.container,
-              { paddingBottom: insets.bottom + 24 },
-            ]}
-            keyboardShouldPersistTaps="handled"
-          >
-            <Text style={styles.title}>Create memory ➕</Text>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <KeyboardAwareScrollView
+          enableOnAndroid
+          extraScrollHeight={Platform.OS === "ios" ? 24 : 72}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={[
+            styles.container,
+            { paddingBottom: insets.bottom + 24 },
+          ]}
+        >
+          <Text style={styles.title}>Create memory ➕</Text>
 
-            {/* ✅ Bingo banner (optional) */}
-            {draftBingoCardId && draftBingoCellId ? (
-              <View style={styles.challengeBanner}>
-                <Text style={styles.challengeBannerText} numberOfLines={2}>
-                  Bingo: {draftBingoCellText ?? "Bingo square"}
-                </Text>
-                <Pressable
-                  onPress={() => setBingo(null, null, null)}
-                  disabled={isPublishing}
-                  style={[styles.challengeRemoveBtn, isPublishing && styles.disabled]}
-                >
-                  <Text style={styles.challengeRemoveBtnText}>Remove</Text>
-                </Pressable>
-              </View>
-            ) : null}
+          {draftBingoCardId && draftBingoCellId ? (
+            <View style={styles.challengeBanner}>
+              <Text style={styles.challengeBannerText} numberOfLines={2}>
+                Bingo: {draftBingoCellText ?? "Bingo square"}
+              </Text>
+              <Pressable
+                onPress={() => setBingo(null, null, null)}
+                disabled={isPublishing}
+                style={[styles.challengeRemoveBtn, isPublishing && styles.disabled]}
+              >
+                <Text style={styles.challengeRemoveBtnText}>Remove</Text>
+              </Pressable>
+            </View>
+          ) : null}
 
-            {/* Challenge banner (optional) */}
-            {draftChallengeId ? (
-              <View style={styles.challengeBanner}>
-                <Text style={styles.challengeBannerText} numberOfLines={2}>
-                  Posting for: {draftChallengeTitle ?? "Challenge"}
-                </Text>
-                <Pressable
-                  onPress={() => setChallenge(null, null)}
-                  disabled={isPublishing}
-                  style={[styles.challengeRemoveBtn, isPublishing && styles.disabled]}
-                >
-                  <Text style={styles.challengeRemoveBtnText}>Remove</Text>
-                </Pressable>
-              </View>
-            ) : null}
+          {draftChallengeId ? (
+            <View style={styles.challengeBanner}>
+              <Text style={styles.challengeBannerText} numberOfLines={2}>
+                Posting for: {draftChallengeTitle ?? "Challenge"}
+              </Text>
+              <Pressable
+                onPress={() => setChallenge(null, null)}
+                disabled={isPublishing}
+                style={[styles.challengeRemoveBtn, isPublishing && styles.disabled]}
+              >
+                <Text style={styles.challengeRemoveBtnText}>Remove</Text>
+              </Pressable>
+            </View>
+          ) : null}
 
-            {!imageUri ? (
-              <View style={styles.pickRow}>
-                <Pressable
-                  onPress={takePhoto}
-                  disabled={isPublishing}
-                  style={[
-                    styles.pickBtn,
-                    styles.pickBtnHalf,
-                    isPublishing && styles.disabled,
-                  ]}
-                >
-                  <Text style={styles.pickBtnText}> Camera</Text>
-                </Pressable>
-                <Pressable
-                  onPress={pickImage}
-                  disabled={isPublishing}
-                  style={[
-                    styles.pickBtn,
-                    styles.pickBtnHalf,
-                    isPublishing && styles.disabled,
-                  ]}
-                >
-                  <Text style={styles.pickBtnText}>
-                    {imageUri ? "Change" : "Gallery"}
-                  </Text>
-                </Pressable>
-              </View>
-            ) : null}
+          {!imageUri ? (
+            <View style={styles.pickRow}>
+              <Pressable
+                onPress={takePhoto}
+                disabled={isPublishing}
+                style={[
+                  styles.pickBtn,
+                  styles.pickBtnHalf,
+                  isPublishing && styles.disabled,
+                ]}
+              >
+                <Text style={styles.pickBtnText}> Camera</Text>
+              </Pressable>
+              <Pressable
+                onPress={pickImage}
+                disabled={isPublishing}
+                style={[
+                  styles.pickBtn,
+                  styles.pickBtnHalf,
+                  isPublishing && styles.disabled,
+                ]}
+              >
+                <Text style={styles.pickBtnText}>{imageUri ? "Change" : "Gallery"}</Text>
+              </Pressable>
+            </View>
+          ) : null}
 
-            {imageUri && (
-              <View style={styles.previewWrap}>
-                <Image source={{ uri: imageUri }} style={styles.preview} />
+          {imageUri && (
+            <View style={styles.previewWrap}>
+              <Image source={{ uri: imageUri }} style={styles.preview} />
 
-                {isPublishing && (
-                  <View style={styles.overlay}>
-                    <ActivityIndicator size="large" />
-                    <Text style={styles.overlayText}>Uploading…</Text>
-                  </View>
-                )}
-              </View>
-            )}
-
-            {imageUri && (
-              <View style={styles.photoActions}>
-                <Pressable
-                  onPress={() => setImageUri(null)}
-                  disabled={isPublishing}
-                  style={[styles.secondaryBtn, isPublishing && styles.disabled]}
-                >
-                  <Text style={styles.secondaryBtnText}>Remove</Text>
-                </Pressable>
-                <Pressable
-                  onPress={takePhoto}
-                  disabled={isPublishing}
-                  style={[styles.secondaryBtn, isPublishing && styles.disabled]}
-                >
-                  <Text style={styles.secondaryBtnText}>Retake</Text>
-                </Pressable>
-                <Pressable
-                  onPress={pickImage}
-                  disabled={isPublishing}
-                  style={[styles.secondaryBtn, isPublishing && styles.disabled]}
-                >
-                  <Text style={styles.secondaryBtnText}>Gallery</Text>
-                </Pressable>
-              </View>
-            )}
-
-            <TextInput
-              value={caption}
-              editable={!isPublishing}
-              onChangeText={(text) => setCaption(text.slice(0, MAX_CHARS))}
-              onFocus={() => setCaptionFocused(true)}
-              onBlur={() => setCaptionFocused(false)}
-              placeholder="Write a caption…"
-              style={[styles.input, isPublishing && styles.inputDisabled]}
-              multiline
-            />
-
-            <Text style={styles.counter}>
-              {caption.length} / {MAX_CHARS}
-            </Text>
-
-            <Pressable
-              onPress={publish}
-              disabled={!canPost}
-              style={[
-                styles.postBtn,
-                (!canPost || isPublishing) && styles.postBtnDisabled,
-              ]}
-            >
-              {isPublishing ? (
-                <View style={styles.postBtnRow}>
-                  <ActivityIndicator />
-                  <Text style={styles.postBtnText}>Posting…</Text>
+              {isPublishing && (
+                <View style={styles.overlay}>
+                  <ActivityIndicator size="large" />
+                  <Text style={styles.overlayText}>Uploading…</Text>
                 </View>
-              ) : (
-                <Text style={styles.postBtnText}>
-                  {initializing ? "Checking session…" : "Post"}
-                </Text>
               )}
-            </Pressable>
-          </ScrollView>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
+            </View>
+          )}
+
+          {imageUri && (
+            <View style={styles.photoActions}>
+              <Pressable
+                onPress={() => setImageUri(null)}
+                disabled={isPublishing}
+                style={[styles.secondaryBtn, isPublishing && styles.disabled]}
+              >
+                <Text style={styles.secondaryBtnText}>Remove</Text>
+              </Pressable>
+              <Pressable
+                onPress={takePhoto}
+                disabled={isPublishing}
+                style={[styles.secondaryBtn, isPublishing && styles.disabled]}
+              >
+                <Text style={styles.secondaryBtnText}>Retake</Text>
+              </Pressable>
+              <Pressable
+                onPress={pickImage}
+                disabled={isPublishing}
+                style={[styles.secondaryBtn, isPublishing && styles.disabled]}
+              >
+                <Text style={styles.secondaryBtnText}>Gallery</Text>
+              </Pressable>
+            </View>
+          )}
+
+          <TextInput
+            value={caption}
+            editable={!isPublishing}
+            onChangeText={(text) => setCaption(text.slice(0, MAX_CHARS))}
+            onFocus={() => setCaptionFocused(true)}
+            onBlur={() => setCaptionFocused(false)}
+            placeholder="Write a caption…"
+            style={[styles.input, isPublishing && styles.inputDisabled]}
+            multiline
+          />
+
+          <Text style={styles.counter}>
+            {caption.length} / {MAX_CHARS}
+          </Text>
+
+          <Pressable
+            onPress={publish}
+            disabled={!canPost}
+            style={[styles.postBtn, (!canPost || isPublishing) && styles.postBtnDisabled]}
+          >
+            {isPublishing ? (
+              <View style={styles.postBtnRow}>
+                <ActivityIndicator />
+                <Text style={styles.postBtnText}>Posting…</Text>
+              </View>
+            ) : (
+              <Text style={styles.postBtnText}>
+                {initializing ? "Checking session…" : "Post"}
+              </Text>
+            )}
+          </Pressable>
+        </KeyboardAwareScrollView>
+      </TouchableWithoutFeedback>
     </Screen>
   );
 }

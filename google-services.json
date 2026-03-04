@@ -7,6 +7,25 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:207202080097:android:8f052b9412d1ca12442120",
+        "android_client_info": {
+          "package_name": "com.irene.tllo.henstagrammobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeMJv6OkcvvzE_D2zGsuRBnxf3QlbdXNU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:207202080097:android:f651fcd96d03f9d0442120",
         "android_client_info": {
           "package_name": "com.irene_tllo.henstagrammobile"

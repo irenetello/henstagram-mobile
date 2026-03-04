@@ -13,7 +13,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { router } from "expo-router";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaProvider,
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { requestTab } from "@/src/lib/tabs/tabBus";
 
 import type { Post } from "@/src/types/post";
@@ -57,6 +61,8 @@ export function PostDetailModal({
   const commentsCount = comments?.length ?? 0;
   const displayName = post?.username || post?.userEmail;
   const setBingoFocus = useBingoStore((s) => s.setFocus);
+  const insets = useSafeAreaInsets();
+  const bottomInset = Math.max(insets.bottom, 0);
 
   const canManagePost = useMemo(() => {
     if (!post || !user) return false;
@@ -253,12 +259,12 @@ export function PostDetailModal({
                 }
               />
 
-              <View style={{ height: 90 }} />
+              <View style={{ height: 90 + bottomInset }} />
             </View>
           </KeyboardAwareScrollView>
 
           {/* INPUT */}
-          <View style={styles.commentInputRow}>
+          <View style={[styles.commentInputRow, { paddingBottom: 10 + bottomInset }]}>
             <TextInput
               value={commentText}
               onChangeText={setCommentText}

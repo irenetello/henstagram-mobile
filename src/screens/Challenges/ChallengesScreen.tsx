@@ -8,6 +8,7 @@ import {
   Text,
 } from "react-native";
 import { router } from "expo-router";
+import type { Href } from "expo-router";
 
 import { Screen } from "@/src/components/Screen/Screen";
 import { useChallengesUser } from "@/src/hooks/challenges/useChallengesUser";
@@ -27,6 +28,8 @@ import {
 import { FilterTabs } from "../../components/Challenges/FilterTabs";
 import { AdminModeButton } from "../../components/Challenges/AdminModeButton";
 import { ActivateModal } from "../../components/Challenges/ActivateModal";
+import { useMinigamesEnabled } from "@/src/hooks/features/useMinigamesEnabled";
+import { setMinigamesEnabled } from "@/src/lib/features/minigamesFeatureApi";
 
 export default function ChallengesScreen() {
   const { user } = useAuth();
@@ -54,6 +57,8 @@ export default function ChallengesScreen() {
 
   const [activateOpen, setActivateOpen] = useState(false);
   const [activateTarget, setActivateTarget] = useState<Challenge | null>(null);
+  const { enabled: minigamesEnabled, loading: minigamesLoading } = useMinigamesEnabled();
+  const [updatingMinigames, setUpdatingMinigames] = useState(false);
 
   if (loading || adminLoading) {
     return (
@@ -112,9 +117,29 @@ export default function ChallengesScreen() {
         <>
           <Pressable
             style={styles.createButton}
-            onPress={() => router.push("/challenge/create")}
+            onPress={() => router.push("/challenge/create" as Href)}
           >
             <Text style={styles.createButtonText}>➕ New Challenge</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.featureToggleButton}
+            onPress={async () => {
+              if (updatingMinigames || minigamesLoading) return;
+              try {
+                setUpdatingMinigames(true);
+                await setMinigamesEnabled(!minigamesEnabled);
+              } finally {
+                setUpdatingMinigames(false);
+              }
+            }}
+            disabled={updatingMinigames || minigamesLoading}
+          >
+            <Text style={styles.featureToggleText}>
+              {updatingMinigames || minigamesLoading
+                ? "Updating Bingo tab…"
+                : `🎯 Bingo tab: ${minigamesEnabled ? "ON" : "OFF"}`}
+            </Text>
           </Pressable>
 
           <FilterTabs

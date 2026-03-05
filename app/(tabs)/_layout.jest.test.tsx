@@ -42,6 +42,10 @@ jest.mock("@/src/lib/tabs/tabBus", () => ({
   onTabRequest: (...args: any[]) => mockOnTabRequest(...args),
 }));
 
+jest.mock("@/src/hooks/features/useMinigamesEnabled", () => ({
+  useMinigamesEnabled: () => ({ enabled: true, loading: false }),
+}));
+
 jest.mock("./feed", () => {
   const ReactLocal = require("react");
   const { Text } = require("react-native");

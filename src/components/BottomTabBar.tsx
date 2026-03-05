@@ -7,9 +7,10 @@ type TabKey = "feed" | "create" | "challenges" | "minigames" | "ourHistory" | "p
 type Props = {
   activeTab: TabKey;
   onTabPress: (tab: TabKey) => void;
+  showMinigames?: boolean;
 };
 
-export function BottomTabBar({ activeTab, onTabPress }: Props) {
+export function BottomTabBar({ activeTab, onTabPress, showMinigames = true }: Props) {
   return (
     <View style={styles.bar}>
       <Pressable style={styles.item} onPress={() => onTabPress("feed")}>
@@ -30,12 +31,16 @@ export function BottomTabBar({ activeTab, onTabPress }: Props) {
         />
       </Pressable>
 
-      <Pressable style={styles.item} onPress={() => onTabPress("minigames")}>
-        <Ionicons
-          name={activeTab === "minigames" ? "game-controller" : "game-controller-outline"}
-          size={26}
-        />
-      </Pressable>
+      {showMinigames ? (
+        <Pressable style={styles.item} onPress={() => onTabPress("minigames")}>
+          <Ionicons
+            name={
+              activeTab === "minigames" ? "game-controller" : "game-controller-outline"
+            }
+            size={26}
+          />
+        </Pressable>
+      ) : null}
 
       <Pressable style={styles.item} onPress={() => onTabPress("ourHistory")}>
         <Ionicons name={activeTab === "ourHistory" ? "time" : "time-outline"} size={24} />

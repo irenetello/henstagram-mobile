@@ -2,6 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    /* ---------- Auth helpers ---------- */
     function signedIn() {
       return request.auth != null;
     }
@@ -10,95 +11,159 @@ service cloud.firestore {
       return request.auth.token.email;
     }
 
+    function enabledDoc(path) {
+      return exists(path) && get(path).data.enabled == true;
+    }
+
     function isAllowed() {
       return signedIn()
         && myEmail() != null
-        && exists(/databases/$(database)/documents/allowedEmails/$(myEmail()))
-        && get(/databases/$(database)/documents/allowedEmails/$(myEmail())).data.enabled == true;
+        && enabledDoc(/databases/$(database)/documents/allowedEmails/$(myEmail()));
     }
 
     function isAdmin() {
       return isAllowed()
-        && exists(/databases/$(database)/documents/admins/$(myEmail()))
-        && get(/databases/$(database)/documents/admins/$(myEmail())).data.enabled == true;
+        && enabledDoc(/databases/$(database)/documents/admins/$(myEmail()));
     }
 
-    // Whitelist: cada usuario solo puede leer SU doc (su email)
+    function isServerTime(v) { return v == request.time; }
+    function isTimestampOrServerTime(v) { return (v is timestamp) || isServerTime(v); }
+
+
+    /* ---------- allowlist/admin docs ---------- */
     match /allowedEmails/{email} {
       allow read: if signedIn() && email == myEmail();
       allow write: if false;
     }
 
-    // Admins (mirror of allowedEmails: doc id = email)
     match /admins/{email} {
       allow read: if signedIn() && email == myEmail();
       allow write: if false;
     }
 
-    // Our History timeline (solo lectura)
+    /* ---------- our history (read only) ---------- */
     match /ourHistoryEvents/{eventId} {
       allow read: if isAllowed();
       allow write: if false;
     }
 
-    // Challenges
+    /* ---------- app config / feature flags ---------- */
+    match /appConfig/features {
+      allow read: if isAllowed();
+      allow write: if isAdmin();
+    }
+
+    /* ---------- challenges ---------- */
     match /challenges/{challengeId} {
-      // Users: only scheduled & not deleted. Admins: everything.
+
+      function validTitle(v) {
+        return v is string && v.size() > 0 && v.size() <= 60;
+      }
+
+      function validPrompt(v) {
+        return v is string && v.size() > 0 && v.size() <= 200;
+      }
+
+      function hasValidPromptOrDescription(data) {
+        return (("prompt" in data) && validPrompt(data.prompt))
+          || (("description" in data) && validPrompt(data.description));
+      }
+
       allow read: if isAdmin()
         || (
           isAllowed()
-          && resource.data.deletedAt == null
+          && resource.data.isDeleted == false
           && resource.data.startAt != null
         );
 
-      // Create: allowed users can create drafts, but enforce basic validation.
-      allow create: if isAllowed()
-        && request.resource.data.createdByUid == request.auth.uid
-        && request.resource.data.title is string
-        && request.resource.data.title.size() > 0
-        && request.resource.data.title.size() <= 60
-        && request.resource.data.prompt is string
-        && request.resource.data.prompt.size() > 0
-        && request.resource.data.prompt.size() <= 200
-        // DRAFT by default
-        && request.resource.data.startAt == null
-        && request.resource.data.endAt == null
-        && request.resource.data.deletedAt == null;
+      allow create: if isAdmin()
+        || (
+          isAllowed()
+          && request.resource.data.createdByUid == request.auth.uid
+          && validTitle(request.resource.data.title)
+          && hasValidPromptOrDescription(request.resource.data)
+          && isTimestampOrServerTime(request.resource.data.createdAt)
+          && (request.resource.data.startAt == null || request.resource.data.startAt is timestamp)
+          && (request.resource.data.endAt == null || request.resource.data.endAt is timestamp)
+          && request.resource.data.isDeleted == false
+          && request.resource.data.deletedAt == null
+          && request.resource.data.deletedByUid == null
+        );
 
-      // Update: admin-only (activate / end / soft delete / metadata)
       allow update: if isAdmin()
-        // Prevent changing ownership
-        && request.resource.data.createdByUid == resource.data.createdByUid;
+        && request.resource.data.diff(resource.data).changedKeys().hasOnly([
+          "title",
+          "prompt",
+          "description",
+          "startAt",
+          "endAt",
+          "isDeleted",
+          "deletedAt",
+          "deletedByUid",
+          "coverImageUrl",
+          "createdByName"
+        ])
 
-      // No hard delete from client
+        && (
+          (
+            request.resource.data.diff(resource.data).changedKeys().hasOnly(["endAt"])
+            && isTimestampOrServerTime(request.resource.data.endAt)
+          )
+          || (
+            request.resource.data.diff(resource.data).changedKeys().hasOnly(["startAt", "endAt"])
+            && resource.data.startAt == null
+            && isTimestampOrServerTime(request.resource.data.startAt)
+            && (request.resource.data.endAt == null || request.resource.data.endAt is timestamp)
+          )
+          || (
+            request.resource.data.diff(resource.data).changedKeys().hasOnly(["isDeleted","deletedAt","deletedByUid"])
+            && request.resource.data.isDeleted == true
+            && isTimestampOrServerTime(request.resource.data.deletedAt)
+            && request.resource.data.deletedByUid is string
+          )
+          || (
+            request.resource.data.diff(resource.data).changedKeys().hasOnly([
+              "title", "prompt", "description", "coverImageUrl", "createdByName"
+            ])
+            && validTitle(request.resource.data.title)
+            && hasValidPromptOrDescription(request.resource.data)
+          )
+        );
+
       allow delete: if false;
     }
 
-    // Posts
+    /* ---------- posts ---------- */
     match /posts/{postId} {
+
       allow read: if isAllowed();
 
-      // CREATE: solo permitido y el post es suyo
-      // (Opcional pero recomendado: fuerza contadores iniciales si los usas)
       allow create: if isAllowed()
         && request.resource.data.userId == request.auth.uid
-        // Si vas a usar commentsCount/likesCount, recomiendo exigir que nazcan bien:
         && (!('commentsCount' in request.resource.data) || request.resource.data.commentsCount == 0)
         && (!('likesCount' in request.resource.data) || request.resource.data.likesCount == 0);
 
-      // UPDATE/DELETE: solo dueño del post, PERO:
-      // Pro: bloqueamos que el cliente pueda tocar contadores.
       allow update: if isAllowed()
         && resource.data.userId == request.auth.uid
         && request.resource.data.userId == resource.data.userId
-        // Si el campo existe, no puede cambiar desde el cliente:
+
+        // Counters immutable
         && (!('commentsCount' in resource.data) || request.resource.data.commentsCount == resource.data.commentsCount)
-        && (!('likesCount' in resource.data) || request.resource.data.likesCount == resource.data.likesCount);
+        && (!('likesCount' in resource.data) || request.resource.data.likesCount == resource.data.likesCount)
+
+        // 🔒 Bingo fields immutable once set
+        && (
+          !('bingoCardId' in resource.data)
+          || request.resource.data.bingoCardId == resource.data.bingoCardId
+        )
+        && (
+          !('bingoCellId' in resource.data)
+          || request.resource.data.bingoCellId == resource.data.bingoCellId
+        );
 
       allow delete: if isAllowed()
         && resource.data.userId == request.auth.uid;
 
-      // ✅ Likes subcollection
       match /likes/{userId} {
         allow read: if isAllowed();
         allow create: if isAllowed() && request.auth.uid == userId;
@@ -106,27 +171,29 @@ service cloud.firestore {
         allow update: if false;
       }
 
-      // ✅ Comments subcollection
       match /comments/{commentId} {
         allow read: if isAllowed();
 
-        // crear: permitido + el comment debe ser suyo + texto válido
         allow create: if isAllowed()
           && request.resource.data.userId == request.auth.uid
           && request.resource.data.text is string
           && request.resource.data.text.size() > 0
           && request.resource.data.text.size() <= 300;
 
-        // borrar: solo autor del comentario
         allow delete: if isAllowed()
           && resource.data.userId == request.auth.uid;
 
-        // sin edits (por simplicidad y para evitar dramas)
         allow update: if false;
       }
     }
 
-    // Users
+    /* ---------- bingo winner ---------- */
+    match /bingoWinners/{cardId} {
+      allow read: if isAllowed();
+      allow write: if false; // Only Cloud Functions
+    }
+
+    /* ---------- users ---------- */
     match /users/{uid} {
       allow read: if isAllowed();
       allow create, update: if isAllowed() && request.auth.uid == uid;

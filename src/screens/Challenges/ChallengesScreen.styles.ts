@@ -114,6 +114,23 @@ export const styles = StyleSheet.create({
     fontSize: 15,
   },
 
+  featureToggleButton: {
+    marginHorizontal: 16,
+    marginBottom: 8,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "#ccc",
+    alignItems: "center",
+    backgroundColor: "#fff",
+  },
+
+  featureToggleText: {
+    fontWeight: "700",
+    color: "#111",
+    fontSize: 14,
+  },
+
   filterTabs: {
     flexDirection: "row",
     paddingHorizontal: 16,

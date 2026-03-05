@@ -46,6 +46,14 @@ jest.mock("@/src/hooks/features/useMinigamesEnabled", () => ({
   useMinigamesEnabled: () => ({ enabled: true, loading: false }),
 }));
 
+jest.mock("@/src/hooks/features/useAppLaunchEnabled", () => ({
+  useAppLaunchEnabled: () => ({ enabled: true, loading: false }),
+}));
+
+jest.mock("@/src/hooks/user/useIsAdmin", () => ({
+  useIsAdmin: () => ({ isAdmin: true, loading: false }),
+}));
+
 jest.mock("./feed", () => {
   const ReactLocal = require("react");
   const { Text } = require("react-native");

@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import {
   ActionSheetIOS,
   ActivityIndicator,
+  Alert,
   FlatList,
   Platform,
   Pressable,
   Text,
+  View,
 } from "react-native";
 import { router } from "expo-router";
 import type { Href } from "expo-router";
@@ -29,7 +31,13 @@ import { FilterTabs } from "../../components/Challenges/FilterTabs";
 import { AdminModeButton } from "../../components/Challenges/AdminModeButton";
 import { ActivateModal } from "../../components/Challenges/ActivateModal";
 import { useMinigamesEnabled } from "@/src/hooks/features/useMinigamesEnabled";
-import { setMinigamesEnabled } from "@/src/lib/features/minigamesFeatureApi";
+import { useAppLaunchEnabled } from "@/src/hooks/features/useAppLaunchEnabled";
+import {
+  setAppLaunched,
+  setMinigamesEnabled,
+} from "@/src/lib/features/minigamesFeatureApi";
+
+const SUPER_ADMIN_EMAIL = "irenetelloacedo.info@gmail.com";
 
 export default function ChallengesScreen() {
   const { user } = useAuth();
@@ -58,7 +66,10 @@ export default function ChallengesScreen() {
   const [activateOpen, setActivateOpen] = useState(false);
   const [activateTarget, setActivateTarget] = useState<Challenge | null>(null);
   const { enabled: minigamesEnabled, loading: minigamesLoading } = useMinigamesEnabled();
+  const { enabled: appLaunched, loading: appLaunchedLoading } = useAppLaunchEnabled();
   const [updatingMinigames, setUpdatingMinigames] = useState(false);
+  const [updatingLaunch, setUpdatingLaunch] = useState(false);
+  const isSuperAdmin = user?.email?.toLowerCase() === SUPER_ADMIN_EMAIL;
 
   if (loading || adminLoading) {
     return (
@@ -115,31 +126,89 @@ export default function ChallengesScreen() {
     >
       {isAdmin && showAdminMode ? (
         <>
+          <View style={styles.featureToggleRow}>
+            <Pressable
+              style={[styles.featureToggleButton, styles.featureToggleButtonInline]}
+              onPress={() => {
+                if (updatingMinigames || minigamesLoading) return;
+                const nextEnabled = !minigamesEnabled;
+
+                Alert.alert(
+                  nextEnabled ? "Enable Bingo tab?" : "Disable Bingo tab?",
+                  nextEnabled
+                    ? "Are you sure you want to enable the Bingo tab for users?"
+                    : "Are you sure you want to disable the Bingo tab for users?",
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                      text: nextEnabled ? "Enable" : "Disable",
+                      style: "destructive",
+                      onPress: async () => {
+                        try {
+                          setUpdatingMinigames(true);
+                          await setMinigamesEnabled(nextEnabled);
+                        } finally {
+                          setUpdatingMinigames(false);
+                        }
+                      },
+                    },
+                  ],
+                );
+              }}
+              disabled={updatingMinigames || minigamesLoading}
+            >
+              <Text style={styles.featureToggleText}>
+                {updatingMinigames || minigamesLoading
+                  ? "Updating Bingo…"
+                  : `🎯 Bingo: ${minigamesEnabled ? "ON" : "OFF"}`}
+              </Text>
+            </Pressable>
+
+            {isSuperAdmin ? (
+              <Pressable
+                style={[styles.featureToggleButton, styles.featureToggleButtonInline]}
+                onPress={() => {
+                  if (updatingLaunch || appLaunchedLoading) return;
+                  const nextEnabled = !appLaunched;
+
+                  Alert.alert(
+                    nextEnabled ? "Launch app for users?" : "Hide app from users?",
+                    nextEnabled
+                      ? "Are you sure you want to launch the app for all non-admin users?"
+                      : "Are you sure you want to hide the app for all non-admin users?",
+                    [
+                      { text: "Cancel", style: "cancel" },
+                      {
+                        text: nextEnabled ? "Launch" : "Hide",
+                        style: "destructive",
+                        onPress: async () => {
+                          try {
+                            setUpdatingLaunch(true);
+                            await setAppLaunched(nextEnabled);
+                          } finally {
+                            setUpdatingLaunch(false);
+                          }
+                        },
+                      },
+                    ],
+                  );
+                }}
+                disabled={updatingLaunch || appLaunchedLoading}
+              >
+                <Text style={styles.featureToggleText}>
+                  {updatingLaunch || appLaunchedLoading
+                    ? "Updating Launch…"
+                    : `🚀 Launch: ${appLaunched ? "ON" : "OFF"}`}
+                </Text>
+              </Pressable>
+            ) : null}
+          </View>
+
           <Pressable
             style={styles.createButton}
             onPress={() => router.push("/challenge/create" as Href)}
           >
             <Text style={styles.createButtonText}>➕ New Challenge</Text>
-          </Pressable>
-
-          <Pressable
-            style={styles.featureToggleButton}
-            onPress={async () => {
-              if (updatingMinigames || minigamesLoading) return;
-              try {
-                setUpdatingMinigames(true);
-                await setMinigamesEnabled(!minigamesEnabled);
-              } finally {
-                setUpdatingMinigames(false);
-              }
-            }}
-            disabled={updatingMinigames || minigamesLoading}
-          >
-            <Text style={styles.featureToggleText}>
-              {updatingMinigames || minigamesLoading
-                ? "Updating Bingo tab…"
-                : `🎯 Bingo tab: ${minigamesEnabled ? "ON" : "OFF"}`}
-            </Text>
           </Pressable>
 
           <FilterTabs

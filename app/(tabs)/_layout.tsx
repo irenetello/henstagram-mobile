@@ -1,7 +1,17 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Alert, Keyboard, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  Keyboard,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import PagerView from "react-native-pager-view";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { signOut } from "firebase/auth";
 
 import CreateScreen from "./create";
 import FeedScreen from "./feed";
@@ -14,6 +24,9 @@ import OurHistoryScreen from "./memories";
 import { onTabRequest } from "@/src/lib/tabs/tabBus";
 import MiniGamesScreen from "./minigames";
 import { useMinigamesEnabled } from "@/src/hooks/features/useMinigamesEnabled";
+import { useAppLaunchEnabled } from "@/src/hooks/features/useAppLaunchEnabled";
+import { useIsAdmin } from "@/src/hooks/user/useIsAdmin";
+import { auth } from "@/src/lib/auth";
 
 type TabKey = "feed" | "create" | "challenges" | "minigames" | "ourHistory" | "profile";
 
@@ -34,8 +47,17 @@ const TAB_ORDER_DEFAULT: TabKey[] = [
   "profile",
 ];
 
+const DEFAULT_WELCOME_IMAGE_URL =
+  "https://firebasestorage.googleapis.com/v0/b/henstagram-mobile.firebasestorage.app/o/welcome%2Fwelcomepage.png?alt=media&token=1e86fe27-17e0-4c0b-a4f4-d9d9d49780f5";
+
 export default function TabsLayout() {
   const pagerRef = useRef<PagerView>(null);
+  const { isAdmin, loading: adminLoading } = useIsAdmin();
+  const {
+    enabled: appLaunched,
+    loading: launchLoading,
+    welcomeImageUrl,
+  } = useAppLaunchEnabled();
   const { enabled: minigamesEnabled } = useMinigamesEnabled();
   const tabOrder = useMemo(
     () => (minigamesEnabled ? TAB_ORDER_WITH_MINIGAMES : TAB_ORDER_DEFAULT),
@@ -229,6 +251,45 @@ export default function TabsLayout() {
     }
   };
 
+  if (adminLoading || launchLoading) {
+    return (
+      <View style={[styles.container, styles.centered]}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
+  if (!isAdmin && !appLaunched) {
+    return (
+      <SafeAreaView edges={["top"]} style={styles.container}>
+        <View style={styles.welcomeHeader}>
+          <Text style={styles.welcomeHeaderTitle}>Henstagram</Text>
+        </View>
+
+        <View style={styles.welcomeContent}>
+          <Image
+            source={{ uri: welcomeImageUrl ?? DEFAULT_WELCOME_IMAGE_URL }}
+            style={styles.welcomeImage}
+            resizeMode="contain"
+          />
+        </View>
+
+        <SafeAreaView edges={["bottom"]} style={styles.welcomeFooter}>
+          <Pressable
+            style={styles.logoffBtn}
+            onPress={() => {
+              signOut(auth).catch(() => {
+                Alert.alert("Error", "No se pudo cerrar sesión.");
+              });
+            }}
+          >
+            <Text style={styles.logoffBtnText}>Logout</Text>
+          </Pressable>
+        </SafeAreaView>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <PagerView
@@ -257,4 +318,46 @@ const styles = StyleSheet.create({
   pager: { flex: 1 },
   page: { flex: 1 },
   safeBottom: { backgroundColor: "#fff" },
+  centered: { alignItems: "center", justifyContent: "center" },
+  welcomeHeader: {
+    height: 52,
+    justifyContent: "center",
+    paddingHorizontal: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "#ddd",
+    backgroundColor: "#fff",
+  },
+  welcomeHeaderTitle: {
+    textAlign: "center",
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#6575AC",
+    fontVariant: ["small-caps"],
+  },
+  welcomeContent: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  welcomeImage: {
+    width: "100%",
+    height: "100%",
+  },
+  welcomeFooter: {
+    backgroundColor: "#fff",
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 16,
+  },
+  logoffBtn: {
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: "#6575AC",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  logoffBtnText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 16,
+  },
 });

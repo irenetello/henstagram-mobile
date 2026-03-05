@@ -125,10 +125,25 @@ export const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
 
+  featureToggleRow: {
+    flexDirection: "row",
+    marginHorizontal: 16,
+    marginTop: 12,
+    marginBottom: 8,
+    gap: 8,
+  },
+
+  featureToggleButtonInline: {
+    flex: 1,
+    marginHorizontal: 0,
+    marginBottom: 0,
+  },
+
   featureToggleText: {
     fontWeight: "700",
     color: "#111",
-    fontSize: 14,
+    fontSize: 13,
+    textAlign: "center",
   },
 
   filterTabs: {
